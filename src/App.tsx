@@ -1,6 +1,6 @@
-import { type ChangeEvent, useMemo, useState } from 'react'
+import { type ChangeEvent, type ReactNode, useMemo, useState } from 'react'
 import './App.css'
-import { type MenuContent } from './data/menu'
+import { type GalleryImage, type MenuContent, type MenuItem, type MenuSection, type PromoCard } from './data/menu'
 import { clearStoredContent, cloneDefaultContent, readStoredContent, saveStoredContent } from './lib/content'
 
 const quickLinks = [
@@ -11,6 +11,25 @@ const quickLinks = [
   { label: 'Fast Food', href: '#galeria' },
   { label: 'Posters', href: '#posters' },
 ]
+
+const emptyPromo = (): PromoCard => ({
+  title: 'Nueva promo',
+  description: 'Descripcion corta.',
+  price: '0 Gs',
+  badge: '',
+})
+
+const emptyItem = (): MenuItem => ({
+  name: 'Nuevo item',
+  description: '',
+  price: '0 Gs',
+  badge: '',
+})
+
+const emptyImage = (): GalleryImage => ({
+  src: '',
+  alt: 'Nueva imagen',
+})
 
 function App() {
   const isAdminRoute =
@@ -258,41 +277,144 @@ function AdminPage({
   content: MenuContent
   onContentChange: (content: MenuContent) => void
 }) {
+  const [draft, setDraft] = useState<MenuContent>(() => cloneDefault(content))
+  const [status, setStatus] = useState('Panel listo para editar.')
+  const [jsonMode, setJsonMode] = useState(false)
   const [editorValue, setEditorValue] = useState(() => JSON.stringify(content, null, 2))
-  const [status, setStatus] = useState('Editor listo.')
 
   const stats = useMemo(() => {
-    const itemsCount = content.menuSections.reduce((total, section) => total + section.items.length, 0)
+    const itemsCount = draft.menuSections.reduce((total, section) => total + section.items.length, 0)
 
     return [
-      { label: 'Promos', value: content.featuredPromos.length },
-      { label: 'Combos', value: content.comboCards.length },
-      { label: 'Categorias', value: content.menuSections.length },
+      { label: 'Promos', value: draft.featuredPromos.length },
+      { label: 'Combos', value: draft.comboCards.length },
+      { label: 'Categorias', value: draft.menuSections.length },
       { label: 'Items', value: itemsCount },
     ]
-  }, [content])
+  }, [draft])
 
-  const handleSave = () => {
-    try {
-      const parsed = JSON.parse(editorValue) as MenuContent
-      saveStoredContent(parsed)
-      onContentChange(parsed)
-      setStatus('Cambios guardados en este navegador.')
-    } catch {
-      setStatus('JSON invalido. Revisa comas, llaves y comillas.')
-    }
+  function updateDraft(updater: (current: MenuContent) => MenuContent) {
+    setDraft((current) => {
+      const next = updater(current)
+      setEditorValue(JSON.stringify(next, null, 2))
+      return next
+    })
   }
 
-  const handleReset = () => {
+  function updatePromoCard(type: 'featuredPromos' | 'comboCards', index: number, field: keyof PromoCard, value: string) {
+    updateDraft((current) => {
+      const list = [...current[type]]
+      list[index] = { ...list[index], [field]: value }
+      return { ...current, [type]: list }
+    })
+  }
+
+  function updateSectionMeta(index: number, field: keyof MenuSection, value: string) {
+    updateDraft((current) => {
+      const sections = [...current.menuSections]
+      sections[index] = { ...sections[index], [field]: value }
+      return { ...current, menuSections: sections }
+    })
+  }
+
+  function updateSectionItem(sectionIndex: number, itemIndex: number, field: keyof MenuItem, value: string) {
+    updateDraft((current) => {
+      const sections = [...current.menuSections]
+      const items = [...sections[sectionIndex].items]
+      items[itemIndex] = { ...items[itemIndex], [field]: value }
+      sections[sectionIndex] = { ...sections[sectionIndex], items }
+      return { ...current, menuSections: sections }
+    })
+  }
+
+  function addSectionItem(sectionIndex: number) {
+    updateDraft((current) => {
+      const sections = [...current.menuSections]
+      sections[sectionIndex] = {
+        ...sections[sectionIndex],
+        items: [...sections[sectionIndex].items, emptyItem()],
+      }
+      return { ...current, menuSections: sections }
+    })
+  }
+
+  function removeSectionItem(sectionIndex: number, itemIndex: number) {
+    updateDraft((current) => {
+      const sections = [...current.menuSections]
+      sections[sectionIndex] = {
+        ...sections[sectionIndex],
+        items: sections[sectionIndex].items.filter((_, index) => index !== itemIndex),
+      }
+      return { ...current, menuSections: sections }
+    })
+  }
+
+  function addPromo(type: 'featuredPromos' | 'comboCards') {
+    updateDraft((current) => ({
+      ...current,
+      [type]: [...current[type], emptyPromo()],
+    }))
+  }
+
+  function removePromo(type: 'featuredPromos' | 'comboCards', index: number) {
+    updateDraft((current) => ({
+      ...current,
+      [type]: current[type].filter((_, itemIndex) => itemIndex !== index),
+    }))
+  }
+
+  function updateImage(index: number, field: keyof GalleryImage, value: string) {
+    updateDraft((current) => {
+      const images = [...current.galleryImages]
+      images[index] = { ...images[index], [field]: value }
+      return { ...current, galleryImages: images }
+    })
+  }
+
+  async function updateImageFile(index: number, event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+
+    if (!file) {
+      return
+    }
+
+    const base64 = await fileToBase64(file)
+    updateImage(index, 'src', base64)
+    setStatus(`Imagen cargada: ${file.name}`)
+    event.target.value = ''
+  }
+
+  function addImage() {
+    updateDraft((current) => ({
+      ...current,
+      galleryImages: [...current.galleryImages, emptyImage()],
+    }))
+  }
+
+  function removeImage(index: number) {
+    updateDraft((current) => ({
+      ...current,
+      galleryImages: current.galleryImages.filter((_, imageIndex) => imageIndex !== index),
+    }))
+  }
+
+  function handleSave() {
+    saveStoredContent(draft)
+    onContentChange(draft)
+    setStatus('Cambios guardados en este navegador.')
+  }
+
+  function handleReset() {
     const resetContent = cloneDefaultContent()
     clearStoredContent()
+    setDraft(resetContent)
     onContentChange(resetContent)
     setEditorValue(JSON.stringify(resetContent, null, 2))
     setStatus('Contenido restaurado al original del proyecto.')
   }
 
-  const handleDownload = () => {
-    const file = new Blob([editorValue], { type: 'application/json' })
+  function handleDownload() {
+    const file = new Blob([JSON.stringify(draft, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(file)
     const link = document.createElement('a')
     link.href = url
@@ -302,17 +424,7 @@ function AdminPage({
     setStatus('Archivo JSON descargado.')
   }
 
-  const handleFormat = () => {
-    try {
-      const parsed = JSON.parse(editorValue)
-      setEditorValue(JSON.stringify(parsed, null, 2))
-      setStatus('JSON formateado.')
-    } catch {
-      setStatus('No se pudo formatear porque el JSON es invalido.')
-    }
-  }
-
-  const handleImport = async (event: ChangeEvent<HTMLInputElement>) => {
+  async function handleImport(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
 
     if (!file) {
@@ -320,29 +432,47 @@ function AdminPage({
     }
 
     const text = await file.text()
-    setEditorValue(text)
-    setStatus(`Archivo cargado: ${file.name}. Revisa y guarda.`)
+
+    try {
+      const parsed = JSON.parse(text) as MenuContent
+      setDraft(parsed)
+      setEditorValue(JSON.stringify(parsed, null, 2))
+      setStatus(`Archivo cargado: ${file.name}`)
+    } catch {
+      setStatus('No se pudo importar el archivo.')
+    }
+
     event.target.value = ''
+  }
+
+  function handleJsonApply() {
+    try {
+      const parsed = JSON.parse(editorValue) as MenuContent
+      setDraft(parsed)
+      setStatus('JSON aplicado al panel visual.')
+    } catch {
+      setStatus('JSON invalido. Revisa comas, llaves y comillas.')
+    }
   }
 
   return (
     <div className="admin-shell">
       <header className="admin-header">
         <div>
-          <p className="section-kicker">Admin</p>
-          <h1>Editor de contenido de Pool Espana</h1>
+          <p className="section-kicker">Admin facil</p>
+          <h1>Editar menu sin experiencia</h1>
           <p className="admin-note">
-            Este panel guarda cambios en el navegador actual. Para hacerlos publicos para todos,
-            exporta el JSON y actualiza el proyecto con un nuevo deploy.
+            Cambia textos, precios e imagenes con formularios simples. Guarda al final para que
+            este navegador recuerde los cambios.
           </p>
         </div>
 
         <div className="admin-header-actions">
+          <button type="button" className="admin-button primary" onClick={handleSave}>
+            Guardar cambios
+          </button>
           <a className="secondary-cta" href="/">
             Ver sitio
-          </a>
-          <a className="primary-cta" href={content.siteData.whatsappUrl} target="_blank" rel="noreferrer">
-            Probar WhatsApp
           </a>
         </div>
       </header>
@@ -361,14 +491,11 @@ function AdminPage({
           <button type="button" className="admin-button primary" onClick={handleSave}>
             Guardar en navegador
           </button>
-          <button type="button" className="admin-button" onClick={handleFormat}>
-            Formatear JSON
-          </button>
           <button type="button" className="admin-button" onClick={handleDownload}>
-            Descargar JSON
+            Descargar respaldo
           </button>
           <label className="admin-button file-button">
-            Importar JSON
+            Importar respaldo
             <input type="file" accept="application/json" onChange={handleImport} />
           </label>
           <button type="button" className="admin-button danger" onClick={handleReset}>
@@ -378,16 +505,307 @@ function AdminPage({
 
         <p className="admin-status">{status}</p>
 
-        <textarea
-          className="admin-editor"
-          value={editorValue}
-          onChange={(event) => setEditorValue(event.target.value)}
-          spellCheck={false}
-          aria-label="Editor JSON del menu"
-        />
+        <div className="admin-sections">
+          <AdminCard title="Datos principales" description="Nombre visible y textos del encabezado.">
+            <div className="form-grid two-columns">
+              <Field
+                label="Nombre grande"
+                value={draft.siteData.displayName}
+                onChange={(value) =>
+                  updateDraft((current) => ({
+                    ...current,
+                    siteData: { ...current.siteData, displayName: value },
+                  }))
+                }
+              />
+              <Field
+                label="Ciudad"
+                value={draft.siteData.city}
+                onChange={(value) =>
+                  updateDraft((current) => ({
+                    ...current,
+                    siteData: { ...current.siteData, city: value },
+                  }))
+                }
+              />
+            </div>
+          </AdminCard>
+
+          <AdminCard title="Promos destacadas" description="Cambia las promos de la parte superior.">
+            <div className="stack-list">
+              {draft.featuredPromos.map((promo, index) => (
+                <EditablePromoCard
+                  key={`featured-${index}`}
+                  title={`Promo ${index + 1}`}
+                  promo={promo}
+                  onFieldChange={(field, value) => updatePromoCard('featuredPromos', index, field, value)}
+                  onRemove={() => removePromo('featuredPromos', index)}
+                />
+              ))}
+            </div>
+            <button type="button" className="admin-button add-button" onClick={() => addPromo('featuredPromos')}>
+              Agregar promo
+            </button>
+          </AdminCard>
+
+          <AdminCard title="Combos" description="Agrega, quita o cambia combos con ficha.">
+            <div className="stack-list">
+              {draft.comboCards.map((combo, index) => (
+                <EditablePromoCard
+                  key={`combo-${index}`}
+                  title={`Combo ${index + 1}`}
+                  promo={combo}
+                  onFieldChange={(field, value) => updatePromoCard('comboCards', index, field, value)}
+                  onRemove={() => removePromo('comboCards', index)}
+                />
+              ))}
+            </div>
+            <button type="button" className="admin-button add-button" onClick={() => addPromo('comboCards')}>
+              Agregar combo
+            </button>
+          </AdminCard>
+
+          <AdminCard title="Categorias del menu" description="Aqui cambias nombres, precios y descripciones.">
+            <div className="stack-list">
+              {draft.menuSections.map((section, sectionIndex) => (
+                <div className="editor-card" key={section.id}>
+                  <div className="editor-card-header">
+                    <div>
+                      <h3>{section.title}</h3>
+                      <p>{section.id}</p>
+                    </div>
+                  </div>
+
+                  <div className="form-grid two-columns">
+                    <Field
+                      label="Titulo"
+                      value={section.title}
+                      onChange={(value) => updateSectionMeta(sectionIndex, 'title', value)}
+                    />
+                    <Field
+                      label="Subtitulo pequeno"
+                      value={section.eyebrow}
+                      onChange={(value) => updateSectionMeta(sectionIndex, 'eyebrow', value)}
+                    />
+                  </div>
+
+                  <Field
+                    label="Descripcion"
+                    value={section.description}
+                    onChange={(value) => updateSectionMeta(sectionIndex, 'description', value)}
+                    multiline
+                  />
+
+                  <div className="stack-list">
+                    {section.items.map((item, itemIndex) => (
+                      <div className="sub-editor-card" key={`${section.id}-${itemIndex}`}>
+                        <div className="editor-card-header">
+                          <strong>Item {itemIndex + 1}</strong>
+                          <button
+                            type="button"
+                            className="remove-link"
+                            onClick={() => removeSectionItem(sectionIndex, itemIndex)}
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+
+                        <div className="form-grid two-columns">
+                          <Field
+                            label="Nombre"
+                            value={item.name}
+                            onChange={(value) => updateSectionItem(sectionIndex, itemIndex, 'name', value)}
+                          />
+                          <Field
+                            label="Precio"
+                            value={item.price}
+                            onChange={(value) => updateSectionItem(sectionIndex, itemIndex, 'price', value)}
+                          />
+                        </div>
+
+                        <Field
+                          label="Descripcion"
+                          value={item.description ?? ''}
+                          onChange={(value) => updateSectionItem(sectionIndex, itemIndex, 'description', value)}
+                          multiline
+                        />
+
+                        <Field
+                          label="Etiqueta opcional"
+                          value={item.badge ?? ''}
+                          onChange={(value) => updateSectionItem(sectionIndex, itemIndex, 'badge', value)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  <button type="button" className="admin-button add-button" onClick={() => addSectionItem(sectionIndex)}>
+                    Agregar item a {section.title}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </AdminCard>
+
+          <AdminCard title="Imagenes / posters" description="Puedes subir imagenes nuevas o pegar un link.">
+            <div className="stack-list">
+              {draft.galleryImages.map((image, index) => (
+                <div className="editor-card" key={`image-${index}`}>
+                  <div className="editor-card-header">
+                    <strong>Imagen {index + 1}</strong>
+                    <button type="button" className="remove-link" onClick={() => removeImage(index)}>
+                      Eliminar
+                    </button>
+                  </div>
+
+                  <div className="image-editor-grid">
+                    <div className="image-preview-frame">
+                      {image.src ? <img src={image.src} alt={image.alt} /> : <span>Sin imagen</span>}
+                    </div>
+
+                    <div className="stack-list tight">
+                      <Field
+                        label="Texto alternativo"
+                        value={image.alt}
+                        onChange={(value) => updateImage(index, 'alt', value)}
+                      />
+                      <Field
+                        label="Link de imagen"
+                        value={image.src}
+                        onChange={(value) => updateImage(index, 'src', value)}
+                      />
+                      <label className="upload-box">
+                        Subir imagen desde el celular o PC
+                        <input type="file" accept="image/*" onChange={(event) => updateImageFile(index, event)} />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button type="button" className="admin-button add-button" onClick={addImage}>
+              Agregar imagen
+            </button>
+          </AdminCard>
+
+          <details className="advanced-json">
+            <summary>Modo avanzado JSON</summary>
+            <p>Solo usa esto si ya sabes lo que estas haciendo.</p>
+            <div className="admin-toolbar compact-toolbar">
+              <button type="button" className="admin-button" onClick={() => setJsonMode((current) => !current)}>
+                {jsonMode ? 'Ocultar JSON' : 'Mostrar JSON'}
+              </button>
+              <button type="button" className="admin-button" onClick={handleJsonApply}>
+                Aplicar JSON al panel
+              </button>
+            </div>
+            {jsonMode ? (
+              <textarea
+                className="admin-editor"
+                value={editorValue}
+                onChange={(event) => setEditorValue(event.target.value)}
+                spellCheck={false}
+                aria-label="Editor JSON del menu"
+              />
+            ) : null}
+          </details>
+        </div>
       </section>
     </div>
   )
+}
+
+function EditablePromoCard({
+  title,
+  promo,
+  onFieldChange,
+  onRemove,
+}: {
+  title: string
+  promo: PromoCard
+  onFieldChange: (field: keyof PromoCard, value: string) => void
+  onRemove: () => void
+}) {
+  return (
+    <div className="editor-card">
+      <div className="editor-card-header">
+        <strong>{title}</strong>
+        <button type="button" className="remove-link" onClick={onRemove}>
+          Eliminar
+        </button>
+      </div>
+
+      <div className="form-grid two-columns">
+        <Field label="Titulo" value={promo.title} onChange={(value) => onFieldChange('title', value)} />
+        <Field label="Precio" value={promo.price} onChange={(value) => onFieldChange('price', value)} />
+      </div>
+
+      <Field
+        label="Descripcion"
+        value={promo.description}
+        onChange={(value) => onFieldChange('description', value)}
+        multiline
+      />
+
+      <Field label="Etiqueta" value={promo.badge ?? ''} onChange={(value) => onFieldChange('badge', value)} />
+    </div>
+  )
+}
+
+function AdminCard({
+  title,
+  description,
+  children,
+}: {
+  title: string
+  description: string
+  children: ReactNode
+}) {
+  return (
+    <article className="admin-block">
+      <div className="admin-block-header">
+        <h2>{title}</h2>
+        <p>{description}</p>
+      </div>
+      {children}
+    </article>
+  )
+}
+
+function Field({
+  label,
+  value,
+  onChange,
+  multiline = false,
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  multiline?: boolean
+}) {
+  return (
+    <label className="field">
+      <span>{label}</span>
+      {multiline ? (
+        <textarea value={value} onChange={(event) => onChange(event.target.value)} rows={3} />
+      ) : (
+        <input value={value} onChange={(event) => onChange(event.target.value)} />
+      )}
+    </label>
+  )
+}
+
+function cloneDefault<T>(value: T) {
+  return JSON.parse(JSON.stringify(value)) as T
+}
+
+function fileToBase64(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result))
+    reader.onerror = () => reject(new Error('No se pudo leer el archivo'))
+    reader.readAsDataURL(file)
+  })
 }
 
 export default App
