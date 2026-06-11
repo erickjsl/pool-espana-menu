@@ -4,12 +4,10 @@ import { type GalleryImage, type MenuContent, type MenuItem, type MenuSection, t
 import { clearStoredContent, cloneDefaultContent, readStoredContent, saveStoredContent } from './lib/content'
 
 const quickLinks = [
-  { label: 'Promos', href: '#promos' },
   { label: 'Bebidas', href: '#menu' },
   { label: 'Tragos', href: '#tragos' },
   { label: 'Combos', href: '#combos' },
-  { label: 'Fast Food', href: '#galeria' },
-  { label: 'Posters', href: '#posters' },
+  { label: 'Comidas', href: '#galeria' },
 ]
 
 const emptyPromo = (): PromoCard => ({
@@ -46,7 +44,7 @@ function App() {
 }
 
 function PublicPage({ content }: { content: MenuContent }) {
-  const { siteData, featuredPromos, comboCards, menuSections, galleryImages } = content
+  const { siteData, comboCards, menuSections, galleryImages } = content
   const bebidasSections = menuSections.filter((section) =>
     ['chopp', 'cervezas', 'gaseosas', 'whisky'].includes(section.id),
   )
@@ -93,38 +91,19 @@ function PublicPage({ content }: { content: MenuContent }) {
       </nav>
 
       <main className="menu-main">
-        <section id="promos" className="menu-block">
-          <div className="block-heading">
-            <div>
-              <p className="section-kicker">Destacados</p>
-              <h2>Promos de la casa</h2>
-            </div>
-          </div>
-
-          <div className="promo-grid">
-            {featuredPromos.map((promo) => (
-              <article className="promo-card" key={promo.title}>
-                {promo.badge ? <span className="badge">{promo.badge}</span> : null}
-                <h3>{promo.title}</h3>
-                <p>{promo.description}</p>
-                <strong>{promo.price}</strong>
-              </article>
-            ))}
-          </div>
-        </section>
-
         <section id="menu" className="menu-block">
           <div className="block-heading">
             <div>
-              <p className="section-kicker">Menu</p>
+              <p className="section-kicker">Bebidas</p>
               <h2>Bebidas</h2>
             </div>
-            {posterLinks.bebidas ? (
-              <a className="poster-link" href={posterLinks.bebidas.src} target="_blank" rel="noreferrer">
-                Ver poster original
-              </a>
-            ) : null}
           </div>
+
+          {posterLinks.bebidas ? (
+            <div className="section-visual">
+              <img src={posterLinks.bebidas.src} alt={posterLinks.bebidas.alt} loading="lazy" />
+            </div>
+          ) : null}
 
           <div className="menu-subsections">
             {bebidasSections.map((section) => (
@@ -159,12 +138,13 @@ function PublicPage({ content }: { content: MenuContent }) {
               <p className="section-kicker">Barra</p>
               <h2>Tragos</h2>
             </div>
-            {posterLinks.tragos ? (
-              <a className="poster-link" href={posterLinks.tragos.src} target="_blank" rel="noreferrer">
-                Ver poster original
-              </a>
-            ) : null}
           </div>
+
+          {posterLinks.tragos ? (
+            <div className="section-visual">
+              <img src={posterLinks.tragos.src} alt={posterLinks.tragos.alt} loading="lazy" />
+            </div>
+          ) : null}
 
           {tragosSection ? (
             <article className="menu-section">
@@ -191,12 +171,13 @@ function PublicPage({ content }: { content: MenuContent }) {
               <p className="section-kicker">Promo</p>
               <h2>Combos ficha</h2>
             </div>
-            {posterLinks.combos ? (
-              <a className="poster-link" href={posterLinks.combos.src} target="_blank" rel="noreferrer">
-                Ver poster original
-              </a>
-            ) : null}
           </div>
+
+          {posterLinks.combos ? (
+            <div className="section-visual">
+              <img src={posterLinks.combos.src} alt={posterLinks.combos.alt} loading="lazy" />
+            </div>
+          ) : null}
 
           <div className="combo-grid">
             {comboCards.map((combo) => (
@@ -215,14 +196,15 @@ function PublicPage({ content }: { content: MenuContent }) {
           <div className="block-heading">
             <div>
               <p className="section-kicker">Cocina</p>
-              <h2>Fast food</h2>
+              <h2>Comidas</h2>
             </div>
-            {posterLinks.comidas ? (
-              <a className="poster-link" href={posterLinks.comidas.src} target="_blank" rel="noreferrer">
-                Ver poster original
-              </a>
-            ) : null}
           </div>
+
+          {posterLinks.comidas ? (
+            <div className="section-visual">
+              <img src={posterLinks.comidas.src} alt={posterLinks.comidas.alt} loading="lazy" />
+            </div>
+          ) : null}
 
           {comidasSection ? (
             <article className="menu-section">
@@ -244,22 +226,6 @@ function PublicPage({ content }: { content: MenuContent }) {
           ) : null}
         </section>
 
-        <section id="posters" className="menu-block">
-          <div className="block-heading">
-            <div>
-              <p className="section-kicker">Visual</p>
-              <h2>Posters</h2>
-            </div>
-          </div>
-
-          <div className="gallery-grid">
-            {galleryImages.map((image) => (
-              <a className="gallery-card" key={image.src} href={image.src} target="_blank" rel="noreferrer">
-                <img src={image.src} alt={image.alt} loading="lazy" />
-              </a>
-            ))}
-          </div>
-        </section>
       </main>
 
       <footer className="simple-footer">
@@ -286,10 +252,10 @@ function AdminPage({
     const itemsCount = draft.menuSections.reduce((total, section) => total + section.items.length, 0)
 
     return [
-      { label: 'Promos', value: draft.featuredPromos.length },
       { label: 'Combos', value: draft.comboCards.length },
       { label: 'Categorias', value: draft.menuSections.length },
       { label: 'Items', value: itemsCount },
+      { label: 'Imagenes', value: draft.galleryImages.length },
     ]
   }, [draft])
 
@@ -531,23 +497,6 @@ function AdminPage({
             </div>
           </AdminCard>
 
-          <AdminCard title="Promos destacadas" description="Cambia las promos de la parte superior.">
-            <div className="stack-list">
-              {draft.featuredPromos.map((promo, index) => (
-                <EditablePromoCard
-                  key={`featured-${index}`}
-                  title={`Promo ${index + 1}`}
-                  promo={promo}
-                  onFieldChange={(field, value) => updatePromoCard('featuredPromos', index, field, value)}
-                  onRemove={() => removePromo('featuredPromos', index)}
-                />
-              ))}
-            </div>
-            <button type="button" className="admin-button add-button" onClick={() => addPromo('featuredPromos')}>
-              Agregar promo
-            </button>
-          </AdminCard>
-
           <AdminCard title="Combos" description="Agrega, quita o cambia combos con ficha.">
             <div className="stack-list">
               {draft.comboCards.map((combo, index) => (
@@ -647,7 +596,7 @@ function AdminPage({
             </div>
           </AdminCard>
 
-          <AdminCard title="Imagenes / posters" description="Puedes subir imagenes nuevas o pegar un link.">
+          <AdminCard title="Imagenes del sitio" description="Estas imagenes aparecen dentro de las 4 secciones del menu.">
             <div className="stack-list">
               {draft.galleryImages.map((image, index) => (
                 <div className="editor-card" key={`image-${index}`}>
