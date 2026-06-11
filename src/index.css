@@ -1,0 +1,80 @@
+@import '@fontsource/bebas-neue';
+@import '@fontsource/montserrat/400.css';
+@import '@fontsource/montserrat/500.css';
+@import '@fontsource/montserrat/600.css';
+@import '@fontsource/montserrat/700.css';
+
+:root {
+  --bg: #05070d;
+  --panel: #0d1320;
+  --panel-soft: rgba(16, 21, 36, 0.78);
+  --border: rgba(255, 255, 255, 0.09);
+  --text: #d8dde9;
+  --text-soft: #99a3bb;
+  --text-strong: #fbfcff;
+  --accent: #ffba24;
+  --accent-strong: #ff6a1f;
+  --danger: #df2d33;
+  --font-body: 'Montserrat', sans-serif;
+  --font-display: 'Bebas Neue', sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top, rgba(180, 17, 17, 0.18), transparent 24%),
+    linear-gradient(180deg, #04060c, #090d16 50%, #04060c);
+  font-family: var(--font-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(circle at center, black 35%, transparent 95%);
+}
+
+a {
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+p {
+  line-height: 1.7;
+}

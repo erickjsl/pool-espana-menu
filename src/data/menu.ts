@@ -1,0 +1,376 @@
+export type MenuItem = {
+  name: string
+  description?: string
+  price: string
+  badge?: string
+}
+
+export type MenuSection = {
+  id: string
+  eyebrow: string
+  title: string
+  description: string
+  items: MenuItem[]
+}
+
+export type PromoCard = {
+  title: string
+  description: string
+  price: string
+  badge?: string
+}
+
+export const siteData = {
+  businessName: 'Pool Espana',
+  displayName: 'POOL ESPANA',
+  city: 'Asuncion, Paraguay',
+  tagline: 'Bar, pool y menu digital listo para QR',
+  whatsappNumber: '595981962685',
+  whatsappDisplay: '981 962 685',
+  whatsappUrl:
+    'https://wa.me/595981962685?text=Hola%20Pool%20Espana,%20quiero%20reservar%20una%20mesa',
+  hero: {
+    eyebrow: 'Pool, futbol, tragos y buena energia',
+    title: 'El menu digital de Pool Espana ya esta listo para recibir reservas por QR.',
+    description:
+      'Una experiencia moderna, rapida y pensada para celular. Todo en espanol, con identidad nocturna, promos destacadas y secciones faciles de actualizar.',
+    stats: [
+      'Reservas por WhatsApp',
+      'Promos destacadas',
+      'Diseno optimizado para Vercel',
+    ],
+  },
+  serviceHighlights: [
+    'Canilla libre durante partidos',
+    'Mesas con descuento especial',
+    'Combos con ficha incluida',
+    'Fast food + tragos + pool',
+  ],
+}
+
+export const featuredPromos: PromoCard[] = [
+  {
+    title: 'Canilla libre',
+    description: 'Durante el partido con ambiente futbolero y pantalla lista.',
+    price: '50.000 Gs',
+    badge: 'Promo estrella',
+  },
+  {
+    title: 'Mesas con descuento',
+    description: 'Ideal para grupos que quieren jugar pool y quedarse toda la noche.',
+    price: '50% OFF',
+    badge: 'Solo en fechas especiales',
+  },
+  {
+    title: 'Reserva rapida',
+    description: 'Atencion directa por WhatsApp para mesas, promos y consultas.',
+    price: '981 962 685',
+    badge: 'Contacto directo',
+  },
+]
+
+export const comboCards: PromoCard[] = [
+  {
+    title: '3 Munich 3/4',
+    description: 'Todas incluyen 1 ficha.',
+    price: '55.000 Gs',
+  },
+  {
+    title: '3 Michelob Ultra 3/4',
+    description: 'Combo para compartir.',
+    price: '70.000 Gs',
+  },
+  {
+    title: '6 Skol 275 ml',
+    description: 'Combo con 1 ficha incluida.',
+    price: '70.000 Gs',
+  },
+  {
+    title: '6 Munich Ultra botellita',
+    description: 'Pensado para grupos.',
+    price: '70.000 Gs',
+  },
+  {
+    title: '6 Coronitas',
+    description: 'Combos listos para la previa.',
+    price: '80.000 Gs',
+  },
+  {
+    title: '3 Corona 3/4',
+    description: 'Con 1 ficha incluida.',
+    price: '70.000 Gs',
+  },
+  {
+    title: '3 Patagonia',
+    description: 'Combo premium.',
+    price: '70.000 Gs',
+  },
+  {
+    title: '3 Heineken 3/4',
+    description: 'Opcion clasica para compartir.',
+    price: '70.000 Gs',
+  },
+  {
+    title: '3 Bud 66 710 ml',
+    description: 'Con 1 ficha incluida.',
+    price: '70.000 Gs',
+  },
+  {
+    title: '3 Stella Artois',
+    description: 'Combos listos para la mesa.',
+    price: '70.000 Gs',
+  },
+  {
+    title: '3 Munich Ultra 3/4',
+    description: 'Promocion vigente.',
+    price: '70.000 Gs',
+  },
+]
+
+export const menuSections: MenuSection[] = [
+  {
+    id: 'chopp',
+    eyebrow: 'Bebidas',
+    title: 'Chopp',
+    description: 'Opciones tiradas y combos pensados para compartir.',
+    items: [
+      { name: 'Chopp Pilsen 330 ml', price: '10.000 Gs' },
+      { name: 'Chopp Pilsen 500 ml', price: '15.000 Gs' },
+      { name: 'Chopp Pilsen 1 litro', price: '25.000 Gs' },
+      { name: 'Jarra Pilsen 1,5 L', price: '35.000 Gs' },
+      { name: 'Chopp Munich 330 ml', price: '10.000 Gs' },
+      { name: 'Chopp Munich 500 ml', price: '15.000 Gs' },
+      { name: 'Chopp Munich 1 litro', price: '25.000 Gs' },
+      { name: 'Jarra Munich 1,5 L', price: '35.000 Gs' },
+      {
+        name: 'Promo chopp 4 x 330 ml + 1 ficha',
+        price: '40.000 Gs',
+        badge: 'Promo',
+      },
+      {
+        name: 'Promo chopp 3 x 500 ml + 1 ficha',
+        price: '50.000 Gs',
+        badge: 'Promo',
+      },
+      {
+        name: 'Promo chopp 6 x 330 ml + 1 ficha',
+        price: '60.000 Gs',
+        badge: 'Promo',
+      },
+    ],
+  },
+  {
+    id: 'cervezas',
+    eyebrow: 'Botellas',
+    title: 'Cervezas',
+    description: 'Selecciones individuales segun la lista entregada.',
+    items: [
+      { name: 'Patagonia 740 ml', price: '25.000 Gs' },
+      { name: 'Stella Artois 740 ml', price: '25.000 Gs' },
+      { name: 'Corona 710 ml', price: '25.000 Gs' },
+      { name: 'Heineken 650 ml', price: '25.000 Gs' },
+      { name: 'Pilsen 3/4', price: '23.000 Gs' },
+      { name: 'Bud 66 710 ml', price: '25.000 Gs' },
+      { name: 'Munich Original 3/4', price: '23.000 Gs' },
+      { name: 'Coronita 355 ml', price: '15.000 Gs' },
+      { name: 'Skol 275 ml', price: '15.000 Gs' },
+      { name: 'Pilsen 340 ml', price: '10.000 Gs' },
+      { name: 'Munich Ultra 3/4', price: '25.000 Gs' },
+      { name: 'Munich Ultra 275 ml', price: '15.000 Gs' },
+      { name: 'Michelob 710 ml', price: '25.000 Gs' },
+      { name: 'Michelob 275 ml', price: '15.000 Gs' },
+    ],
+  },
+  {
+    id: 'tragos',
+    eyebrow: 'Barra',
+    title: 'Tragos',
+    description: 'Cocteles, jarras y combinados para disfrutar, brindar y jugar.',
+    items: [
+      {
+        name: 'Caipirina (vaso)',
+        description: 'Cachaca, lima, azucar y hielo.',
+        price: '25.000 Gs',
+      },
+      {
+        name: 'Caipiroska (vaso)',
+        description: 'Vodka, lima, azucar y hielo.',
+        price: '28.000 Gs',
+      },
+      {
+        name: 'Sangria (vaso)',
+        description: 'Vino tinto con frutas frescas.',
+        price: '30.000 Gs',
+      },
+      {
+        name: 'Fernet Cola',
+        description: 'Fernet Branca con Coca Cola.',
+        price: '25.000 Gs',
+      },
+      {
+        name: 'Whisky + shot',
+        description: 'Shot a eleccion.',
+        price: '25.000 Gs',
+      },
+      {
+        name: 'Jagermeister + shot',
+        description: 'Combinado de barra.',
+        price: '35.000 Gs',
+      },
+      {
+        name: 'Gin Tonic (vaso)',
+        description: 'Gin, tonica y toque de lima.',
+        price: '25.000 Gs',
+      },
+      {
+        name: 'Cuba Libre (vaso)',
+        description: 'Ron, Coca Cola y lima.',
+        price: '25.000 Gs',
+      },
+      {
+        name: 'Daiquiri',
+        description: 'Ron, lima y azucar licuado con hielo.',
+        price: '30.000 Gs',
+      },
+      {
+        name: 'Sangria (jarra)',
+        description: 'Ideal para compartir.',
+        price: '60.000 Gs',
+      },
+      {
+        name: 'Caipirina (jarra)',
+        description: 'Version grande para la mesa.',
+        price: '60.000 Gs',
+      },
+      {
+        name: 'Aperol',
+        description: 'Aperol, espumante y soda.',
+        price: '30.000 Gs',
+      },
+    ],
+  },
+  {
+    id: 'whisky',
+    eyebrow: 'Premium',
+    title: 'Whisky y etiquetas',
+    description: 'Selecciones premium registradas en las fotos del bar.',
+    items: [
+      { name: 'Double Black Rye', price: '35.000 Gs' },
+      { name: 'Jack Daniels', price: '30.000 Gs' },
+      { name: 'JW Black Label', price: '50.000 Gs' },
+      { name: 'JW Red Label', price: '25.000 Gs' },
+      { name: 'Evan Williams Honey', price: '25.000 Gs' },
+      { name: 'Evan Williams Fire', price: '25.000 Gs' },
+      { name: 'Chivas Regal', price: '30.000 Gs', badge: 'Segun disponibilidad' },
+      { name: 'Black Label', price: '35.000 Gs', badge: 'Lista manuscrita' },
+      { name: "Jack Daniel's Honey", price: '40.000 Gs', badge: 'Lista manuscrita' },
+      { name: "Jack Daniel's Apple", price: '40.000 Gs', badge: 'Lista manuscrita' },
+    ],
+  },
+  {
+    id: 'gaseosas',
+    eyebrow: 'Sin alcohol',
+    title: 'Gaseosas y mixers',
+    description: 'Perfectas para mezclar o refrescar la mesa.',
+    items: [
+      { name: 'Coca Cola 500 ml', price: '10.000 Gs' },
+      { name: 'Fanta naranja 500 ml', price: '10.000 Gs' },
+      { name: 'Sprite 500 ml', price: '10.000 Gs' },
+      { name: 'Fanta uva 500 ml', price: '10.000 Gs' },
+      { name: 'Fanta guarana 500 ml', price: '10.000 Gs' },
+      { name: 'Agua Seltz 500 ml', price: '8.000 Gs' },
+      { name: 'Agua tonica 500 ml', price: '20.000 Gs' },
+    ],
+  },
+  {
+    id: 'comidas',
+    eyebrow: 'Fast food',
+    title: 'Comidas',
+    description: 'Entrepanes, picadas, pizzas y extras para completar la salida.',
+    items: [
+      {
+        name: 'Lomito Pool',
+        description:
+          'Pan, carne, tomate, repollo, huevo, jamon, queso, panceta y papas fritas.',
+        price: '50.000 Gs',
+      },
+      {
+        name: 'Lomito Junior',
+        description: 'Pan, carne, tomate, repollo, huevo, jamon y queso.',
+        price: '35.000 Gs',
+      },
+      {
+        name: 'Hamburguesa',
+        description: 'Pan, carne, tomate, repollo, huevo, jamon y queso.',
+        price: '30.000 Gs',
+      },
+      {
+        name: 'Cheese Burger',
+        description:
+          'Pan, carne, tomate, repollo, huevo, jamon, seleccion de quesos, panceta y papas fritas.',
+        price: '45.000 Gs',
+      },
+      {
+        name: 'Parrillita',
+        description: 'Tapa cuadril, chorizo parrillero, chorizo picante y papas fritas.',
+        price: '130.000 Gs',
+        badge: 'Para 2 a 3 personas',
+      },
+      {
+        name: 'Parrilla',
+        description: 'Tapa cuadril, chorizo parrillero, chorizo picante y papas fritas.',
+        price: '160.000 Gs',
+        badge: 'Para 5 personas',
+      },
+      {
+        name: 'Pizza Pepperoni',
+        description: 'Salsa, queso y pepperoni.',
+        price: '70.000 Gs',
+      },
+      {
+        name: 'Pizza Napolitana',
+        description: 'Salsa, queso, jamon y tomate.',
+        price: '70.000 Gs',
+      },
+      {
+        name: 'Pizza Margarita',
+        description: 'Salsa, queso, tomate y albahaca.',
+        price: '70.000 Gs',
+      },
+      {
+        name: 'Pizza Muzzarella',
+        description: 'Salsa y queso.',
+        price: '60.000 Gs',
+      },
+      {
+        name: 'Pizza Catupiry con pollo',
+        description: 'Salsa, queso, catupiry y pollo.',
+        price: '70.000 Gs',
+      },
+      { name: 'Papas fritas', price: '30.000 Gs' },
+    ],
+  },
+]
+
+export const galleryImages = [
+  {
+    src: '/images/promo-copa.jpeg',
+    alt: 'Poster promocional de Pool Espana con tematica futbolera.',
+  },
+  {
+    src: '/images/combos-ficha.jpeg',
+    alt: 'Poster de combos con ficha incluida.',
+  },
+  {
+    src: '/images/menu-fast-food.jpeg',
+    alt: 'Poster de menu fast food de Pool Espana.',
+  },
+  {
+    src: '/images/tragos-poster.jpeg',
+    alt: 'Poster de tragos de Pool Espana.',
+  },
+  {
+    src: '/images/menu-bebidas.jpeg',
+    alt: 'Poster de bebidas y cervezas de Pool Espana.',
+  },
+]
