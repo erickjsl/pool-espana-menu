@@ -28,6 +28,7 @@ La carpeta generada sera `dist/`.
 Todo el contenido del negocio quedo centralizado en:
 
 - `src/data/menu.ts`
+- `/admin` para edicion visual en formato JSON
 
 En ese archivo podes cambiar:
 
@@ -56,6 +57,25 @@ Si queres reemplazar un poster, mantenes el mismo nombre de archivo o actualizas
 5. Subir a Vercel.
 6. Copiar la URL publicada.
 7. Generar un QR con esa URL y ponerlo en mesas, barra o flyers.
+
+## Panel admin
+
+La ruta:
+
+- `/admin`
+
+permite:
+
+- editar el contenido en JSON
+- guardar cambios en el navegador actual
+- importar un JSON
+- descargar un JSON actualizado
+- restaurar el contenido original
+
+Importante:
+
+- como este proyecto esta publicado como sitio estatico en Vercel, el guardado del `/admin` es local del navegador y dispositivo actual
+- para que los cambios queden visibles para todos, exporta el JSON o actualiza `src/data/menu.ts`, hace commit y push para generar un nuevo deploy
 
 ## Publicar gratis en Vercel
 
