@@ -70,13 +70,20 @@
 }
 
 .brand-logo {
-  width: clamp(82px, 18vw, 132px);
+  width: clamp(118px, 24vw, 210px);
   height: auto;
   display: block;
-  border-radius: 14px;
+  border-radius: 18px;
   box-shadow:
     0 0 0 1px rgba(255, 196, 35, 0.18),
-    0 12px 30px rgba(0, 0, 0, 0.32);
+    0 0 18px rgba(255, 184, 36, 0.22),
+    0 0 38px rgba(255, 82, 82, 0.18),
+    0 14px 36px rgba(0, 0, 0, 0.42);
+  filter:
+    saturate(1.12)
+    brightness(1.08)
+    drop-shadow(0 0 10px rgba(255, 180, 0, 0.28))
+    drop-shadow(0 0 24px rgba(255, 68, 68, 0.22));
 }
 
 .eyebrow,
@@ -489,8 +496,8 @@
   }
 
   .brand-logo {
-    width: 78px;
-    border-radius: 12px;
+    width: 108px;
+    border-radius: 14px;
   }
 
   .menu-block,

@@ -62,7 +62,6 @@ function PublicPage({ content }: { content: MenuContent }) {
 
           <p className="hero-slogan">Disfruta | Brinda | Juga</p>
           <h1>Menu</h1>
-          <p className="hero-subtitle">Todo el menu en un solo lugar, rapido y claro para celular.</p>
         </div>
       </header>
 
