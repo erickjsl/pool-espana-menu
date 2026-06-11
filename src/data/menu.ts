@@ -91,12 +91,6 @@ export const defaultMenuContent: MenuContent = {
       price: '50% OFF',
       badge: 'Solo en fechas especiales',
     },
-    {
-      title: 'Reserva rapida',
-      description: 'Atencion directa por WhatsApp para mesas, promos y consultas.',
-      price: '981 962 685',
-      badge: 'Contacto directo',
-    },
   ],
   comboCards: [
     {
