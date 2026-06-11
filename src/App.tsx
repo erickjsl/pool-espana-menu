@@ -53,7 +53,7 @@ function PublicPage({ content }: { content: MenuContent }) {
 
         <div className="menu-hero-content">
           <div className="brand-lockup">
-            <span className="brand-mark">8</span>
+            <img className="brand-logo" src="/images/logo.jpeg" alt="Logo Pool Espana" />
             <div>
               <p className="eyebrow">{siteData.displayName}</p>
               <span className="brand-meta">Bar | Pool | Asuncion</span>

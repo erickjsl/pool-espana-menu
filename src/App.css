@@ -69,6 +69,16 @@
   font-size: 1.45rem;
 }
 
+.brand-logo {
+  width: clamp(82px, 18vw, 132px);
+  height: auto;
+  display: block;
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 1px rgba(255, 196, 35, 0.18),
+    0 12px 30px rgba(0, 0, 0, 0.32);
+}
+
 .eyebrow,
 .brand-meta,
 .section-kicker {
@@ -476,6 +486,11 @@
   .menu-hero,
   .menu-hero-content {
     min-height: 250px;
+  }
+
+  .brand-logo {
+    width: 78px;
+    border-radius: 12px;
   }
 
   .menu-block,
