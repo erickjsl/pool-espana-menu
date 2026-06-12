@@ -1,4 +1,5 @@
 import { buildSessionCookie, createSessionToken } from './_auth.js'
+import { checkLoginRateLimit, clearFailedLoginAttempts, recordFailedLoginAttempt } from './_rate-limit.js'
 
 export default function handler(req, res) {
   if (req.method !== 'POST') {
@@ -14,12 +15,28 @@ export default function handler(req, res) {
     return
   }
 
+  const limitStatus = checkLoginRateLimit(req)
+
+  if (!limitStatus.allowed) {
+    res.setHeader('Retry-After', String(limitStatus.retryAfterSeconds))
+    res.status(429).json({ message: 'Demasiados intentos. Espera un momento e intenta de nuevo.' })
+    return
+  }
+
   const { username = '', password = '' } = req.body || {}
 
   if (username !== expectedUsername || password !== expectedPassword) {
+    const failedAttempt = recordFailedLoginAttempt(req)
+
+    if (failedAttempt.retryAfterSeconds) {
+      res.setHeader('Retry-After', String(failedAttempt.retryAfterSeconds))
+    }
+
     res.status(401).json({ message: 'Usuario o contrasena incorrectos.' })
     return
   }
+
+  clearFailedLoginAttempts(req)
 
   const token = createSessionToken(username)
   res.setHeader('Set-Cookie', buildSessionCookie(token))

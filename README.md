@@ -1,12 +1,14 @@
 # Pool Espana | Menu digital
 
-Proyecto listo para publicar gratis en Vercel y compartir por QR Code.
+Proyecto listo para publicar en Vercel y compartir por QR Code.
 
 ## Tecnologias
 
 - Vite
 - React
 - TypeScript
+- Vercel Functions
+- Playwright
 
 ## Ejecutar localmente
 
@@ -14,6 +16,15 @@ Proyecto listo para publicar gratis en Vercel y compartir por QR Code.
 npm install
 npm run dev
 ```
+
+## Tests E2E
+
+```bash
+npx playwright install chromium
+npm run test:e2e
+```
+
+El flujo E2E actual cubre la navegacion mobile del menu y protege el regreso a `Bebidas` al volver al tope.
 
 ## Build de produccion
 
@@ -28,17 +39,16 @@ La carpeta generada sera `dist/`.
 Todo el contenido del negocio quedo centralizado en:
 
 - `src/data/menu.ts`
-- `/admin` para edicion visual en formato JSON
+- `/admin` para edicion visual
 
-En ese archivo podes cambiar:
+En ese contenido podes cambiar:
 
 - Nombre del negocio
 - Numero de WhatsApp
 - Titulos y textos del hero
-- Promociones destacadas
 - Combos
 - Precios de bebidas, tragos y comidas
-- Galeria de imagenes
+- Imagenes de productos
 
 ## Imagenes utilizadas
 
@@ -46,17 +56,7 @@ Las piezas visuales se copiaron a:
 
 - `public/images/`
 
-Si queres reemplazar un poster, mantenes el mismo nombre de archivo o actualizas la ruta en `src/data/menu.ts`.
-
-## Rutina sugerida para operar el menu
-
-1. Abrir `src/data/menu.ts`.
-2. Cambiar precios, promos o textos.
-3. Ejecutar `npm run dev` para revisar.
-4. Ejecutar `npm run build` para validar.
-5. Subir a Vercel.
-6. Copiar la URL publicada.
-7. Generar un QR con esa URL y ponerlo en mesas, barra o flyers.
+Si queres reemplazar un poster, mantenes el mismo nombre del archivo o actualizas la ruta en `src/data/menu.ts`.
 
 ## Panel admin
 
@@ -66,27 +66,63 @@ La ruta:
 
 permite:
 
-- editar el contenido en JSON
-- guardar cambios en el navegador actual
+- editar el contenido con formularios
+- guardar cambios para todos los dispositivos usando GitHub como fuente central
 - importar un JSON
 - descargar un JSON actualizado
 - restaurar el contenido original
+- limitar intentos de login para frenar fuerza bruta
 
 Importante:
 
-- como este proyecto esta publicado como sitio estatico en Vercel, el guardado del `/admin` es local del navegador y dispositivo actual
-- para que los cambios queden visibles para todos, exporta el JSON o actualiza `src/data/menu.ts`, hace commit y push para generar un nuevo deploy
+- el `/admin` necesita variables de entorno en Vercel para autenticar y escribir en GitHub
+- si cambias variables de entorno en Vercel, hace un redeploy para que apliquen en el nuevo deploy
+- si GitHub no responde, el sitio sigue mostrando la ultima copia disponible
 
-## Publicar gratis en Vercel
+## Variables de entorno
+
+Usa `.env.example` como referencia base.
+
+Variables principales:
+
+- `ADMIN_USERNAME`
+- `ADMIN_PASSWORD`
+- `ADMIN_SESSION_SECRET`
+- `ADMIN_LOGIN_MAX_ATTEMPTS`
+- `ADMIN_LOGIN_WINDOW_MS`
+- `ADMIN_LOGIN_BLOCK_MS`
+- `MENU_CONTENT_GITHUB_TOKEN`
+- `MENU_CONTENT_GITHUB_REPO`
+- `MENU_CONTENT_GITHUB_BRANCH`
+- `MENU_CONTENT_GITHUB_PATH`
+
+## Rutina sugerida para operar el menu
+
+1. Abrir `/admin` o `src/data/menu.ts`.
+2. Cambiar precios, promos o textos.
+3. Ejecutar `npm run dev` para revisar.
+4. Ejecutar `npm run build` para validar.
+5. Ejecutar `npm run test:e2e` si tocaste navegacion o layout mobile.
+6. Subir a GitHub para disparar un nuevo deploy en Vercel.
+7. Validar la URL publicada.
+8. Generar o reutilizar el QR final.
+
+## Publicar en Vercel
 
 ### Opcion 1: desde GitHub
 
-1. Subi la carpeta `web` a un repositorio.
-2. Entrá a Vercel.
-3. Elegí `Add New Project`.
-4. Importá el repositorio.
+1. Subi la carpeta a un repositorio.
+2. Entra a Vercel.
+3. Elige `Add New Project`.
+4. Importa el repositorio.
 5. Framework preset: `Vite`.
 6. Deploy.
+
+Si agregas o cambias variables de entorno:
+
+1. Abri `Settings > Environment Variables`.
+2. Guarda los cambios.
+3. Redeploy del proyecto.
 
 ### Opcion 2: con CLI
 
@@ -100,15 +136,6 @@ Despues, para publicar cambios:
 ```bash
 vercel --prod
 ```
-
-## QR Code
-
-Cuando Vercel te entregue la URL final:
-
-1. Copiala.
-2. Usala en cualquier generador de QR.
-3. Descarga el QR en PNG o SVG.
-4. Imprimilo y colocalo en mesas o entrada.
 
 ## Observacion importante
 

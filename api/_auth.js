@@ -62,12 +62,18 @@ export function getCookieValue(req, cookieName = COOKIE_NAME) {
   return match ? decodeURIComponent(match.slice(cookieName.length + 1)) : ''
 }
 
+function shouldUseSecureCookies() {
+  return process.env.NODE_ENV === 'production' || Boolean(process.env.VERCEL)
+}
+
 export function buildSessionCookie(token) {
-  return `${COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${60 * 60 * 12}`
+  const secureFlag = shouldUseSecureCookies() ? '; Secure' : ''
+  return `${COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax${secureFlag}; Max-Age=${60 * 60 * 12}`
 }
 
 export function buildClearSessionCookie() {
-  return `${COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=0`
+  const secureFlag = shouldUseSecureCookies() ? '; Secure' : ''
+  return `${COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax${secureFlag}; Max-Age=0`
 }
 
 export function isAuthorized(req) {
