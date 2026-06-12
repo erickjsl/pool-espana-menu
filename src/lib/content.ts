@@ -43,13 +43,13 @@ export function clearStoredContent() {
 }
 
 export async function fetchRemoteContent() {
-  const response = await fetch('/api/menu-content', {
+  const response = await fetch('/api/menu', {
     method: 'GET',
     credentials: 'include',
   })
 
   if (!response.ok) {
-    throw new Error('No se pudo cargar el contenido central.')
+    throw new Error(`No se pudo cargar el contenido central. HTTP ${response.status}`)
   }
 
   const payload = (await response.json()) as {
@@ -61,7 +61,7 @@ export async function fetchRemoteContent() {
 }
 
 export async function saveRemoteContent(content: MenuContent) {
-  const response = await fetch('/api/menu-content', {
+  const response = await fetch('/api/menu', {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
@@ -76,7 +76,7 @@ export async function saveRemoteContent(content: MenuContent) {
     | null
 
   if (!response.ok || !payload?.content) {
-    throw new Error(payload?.message ?? 'No se pudo guardar el contenido central.')
+    throw new Error(payload?.message ?? `No se pudo guardar el contenido central. HTTP ${response.status}`)
   }
 
   saveStoredContent(payload.content)
