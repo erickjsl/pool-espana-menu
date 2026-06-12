@@ -86,29 +86,40 @@ export async function saveRemoteContent(content: MenuContent) {
 export async function uploadRemoteImage(file: File) {
   const preparedFile = await prepareImageForUpload(file)
   const dataUrl = await fileToDataUrl(preparedFile)
-  const response = await fetch('/api/upload-image', {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      fileName: preparedFile.name,
-      mimeType: preparedFile.type,
-      dataUrl,
-    }),
-  })
 
-  const payload = (await response.json().catch(() => null)) as
-    | {
-        path?: string
-        message?: string
-      }
-    | null
+  try {
+    const response = await fetch('/api/upload-image', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fileName: preparedFile.name,
+        mimeType: preparedFile.type,
+        dataUrl,
+      }),
+    })
 
-  if (!response.ok || !payload?.path) {
-    throw new Error(payload?.message ?? `No se pudo guardar la imagen. HTTP ${response.status}`)
+    const payload = (await response.json().catch(() => null)) as
+      | {
+          path?: string
+          message?: string
+        }
+      | null
+
+    if (response.ok && payload?.path) {
+      return payload.path
+    }
+
+    if (response.status === 401 || response.status === 403) {
+      throw new Error(payload?.message ?? 'Sesion expirada. Entra de nuevo al admin.')
+    }
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('Sesion expirada')) {
+      throw error
+    }
   }
 
-  return payload.path
+  return dataUrl
 }
 
 async function prepareImageForUpload(file: File) {
@@ -131,7 +142,7 @@ function compressImage(file: File) {
     image.onload = () => {
       URL.revokeObjectURL(url)
 
-      const maxSize = 760
+      const maxSize = 420
       const ratio = Math.min(1, maxSize / Math.max(image.width, image.height))
       const width = Math.max(1, Math.round(image.width * ratio))
       const height = Math.max(1, Math.round(image.height * ratio))
@@ -157,7 +168,7 @@ function compressImage(file: File) {
           resolve(new File([blob], `${name}.jpg`, { type: 'image/jpeg' }))
         },
         'image/jpeg',
-        0.76,
+        0.68,
       )
     }
 
