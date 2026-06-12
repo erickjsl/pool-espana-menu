@@ -1,20 +1,21 @@
 import { type ChangeEvent, type ReactNode, useMemo, useState } from 'react'
 import './App.css'
-import { type GalleryImage, type MenuContent, type MenuItem, type MenuSection, type PromoCard } from './data/menu'
+import { type MenuContent, type MenuItem, type MenuSection, type PromoCard } from './data/menu'
 import { clearStoredContent, cloneDefaultContent, readStoredContent, saveStoredContent } from './lib/content'
 
 const quickLinks = [
   { label: 'Bebidas', href: '#menu' },
   { label: 'Tragos', href: '#tragos' },
   { label: 'Combos', href: '#combos' },
-  { label: 'Comidas', href: '#galeria' },
+  { label: 'Comidas', href: '#comidas' },
 ]
 
 const emptyPromo = (): PromoCard => ({
-  title: 'Nueva promo',
+  title: 'Nuevo combo',
   description: 'Descripcion corta.',
   price: '0 Gs',
   badge: '',
+  image: '',
 })
 
 const emptyItem = (): MenuItem => ({
@@ -22,11 +23,7 @@ const emptyItem = (): MenuItem => ({
   description: '',
   price: '0 Gs',
   badge: '',
-})
-
-const emptyImage = (): GalleryImage => ({
-  src: '',
-  alt: 'Nueva imagen',
+  image: '',
 })
 
 function App() {
@@ -44,19 +41,12 @@ function App() {
 }
 
 function PublicPage({ content }: { content: MenuContent }) {
-  const { siteData, comboCards, menuSections, galleryImages } = content
+  const { siteData, comboCards, menuSections } = content
   const bebidasSections = menuSections.filter((section) =>
     ['chopp', 'cervezas', 'gaseosas', 'whisky'].includes(section.id),
   )
   const tragosSection = menuSections.find((section) => section.id === 'tragos')
   const comidasSection = menuSections.find((section) => section.id === 'comidas')
-
-  const posterLinks = {
-    bebidas: galleryImages.find((image) => image.src.includes('menu-bebidas')),
-    tragos: galleryImages.find((image) => image.src.includes('tragos-poster')),
-    combos: galleryImages.find((image) => image.src.includes('combos-ficha')),
-    comidas: galleryImages.find((image) => image.src.includes('menu-fast-food')),
-  }
 
   return (
     <div className="page-shell">
@@ -99,12 +89,6 @@ function PublicPage({ content }: { content: MenuContent }) {
             </div>
           </div>
 
-          {posterLinks.bebidas ? (
-            <div className="section-visual">
-              <img src={posterLinks.bebidas.src} alt={posterLinks.bebidas.alt} loading="lazy" />
-            </div>
-          ) : null}
-
           <div className="menu-subsections">
             {bebidasSections.map((section) => (
               <article className="menu-section" key={section.id}>
@@ -115,16 +99,7 @@ function PublicPage({ content }: { content: MenuContent }) {
 
                 <div className="menu-items single-column">
                   {section.items.map((item) => (
-                    <div className="menu-item" key={`${section.id}-${item.name}`}>
-                      <div className="item-copy">
-                        <div className="item-title-row">
-                          <h4>{item.name}</h4>
-                          {item.badge ? <span className="item-badge">{item.badge}</span> : null}
-                        </div>
-                        {item.description ? <p>{item.description}</p> : null}
-                      </div>
-                      <strong>{item.price}</strong>
-                    </div>
+                    <ProductRow key={`${section.id}-${item.name}`} item={item} />
                   ))}
                 </div>
               </article>
@@ -140,25 +115,11 @@ function PublicPage({ content }: { content: MenuContent }) {
             </div>
           </div>
 
-          {posterLinks.tragos ? (
-            <div className="section-visual">
-              <img src={posterLinks.tragos.src} alt={posterLinks.tragos.alt} loading="lazy" />
-            </div>
-          ) : null}
-
           {tragosSection ? (
             <article className="menu-section">
               <div className="menu-items">
                 {tragosSection.items.map((item) => (
-                  <div className="menu-item" key={`${tragosSection.id}-${item.name}`}>
-                    <div className="item-copy">
-                      <div className="item-title-row">
-                        <h4>{item.name}</h4>
-                      </div>
-                      {item.description ? <p>{item.description}</p> : null}
-                    </div>
-                    <strong>{item.price}</strong>
-                  </div>
+                  <ProductRow key={`${tragosSection.id}-${item.name}`} item={item} />
                 ))}
               </div>
             </article>
@@ -168,20 +129,19 @@ function PublicPage({ content }: { content: MenuContent }) {
         <section id="combos" className="menu-block">
           <div className="block-heading">
             <div>
-              <p className="section-kicker">Promo</p>
+              <p className="section-kicker">Combos</p>
               <h2>Combos ficha</h2>
             </div>
           </div>
 
-          {posterLinks.combos ? (
-            <div className="section-visual">
-              <img src={posterLinks.combos.src} alt={posterLinks.combos.alt} loading="lazy" />
-            </div>
-          ) : null}
-
           <div className="combo-grid">
             {comboCards.map((combo) => (
-              <article className="menu-card" key={combo.title}>
+              <article className="menu-card combo-card" key={combo.title}>
+                {combo.image ? (
+                  <div className="combo-image">
+                    <img src={combo.image} alt={combo.title} loading="lazy" />
+                  </div>
+                ) : null}
                 <div>
                   <h3>{combo.title}</h3>
                   <p>{combo.description}</p>
@@ -192,7 +152,7 @@ function PublicPage({ content }: { content: MenuContent }) {
           </div>
         </section>
 
-        <section id="galeria" className="menu-block">
+        <section id="comidas" className="menu-block">
           <div className="block-heading">
             <div>
               <p className="section-kicker">Cocina</p>
@@ -200,38 +160,42 @@ function PublicPage({ content }: { content: MenuContent }) {
             </div>
           </div>
 
-          {posterLinks.comidas ? (
-            <div className="section-visual">
-              <img src={posterLinks.comidas.src} alt={posterLinks.comidas.alt} loading="lazy" />
-            </div>
-          ) : null}
-
           {comidasSection ? (
             <article className="menu-section">
               <div className="menu-items">
                 {comidasSection.items.map((item) => (
-                  <div className="menu-item" key={`${comidasSection.id}-${item.name}`}>
-                    <div className="item-copy">
-                      <div className="item-title-row">
-                        <h4>{item.name}</h4>
-                        {item.badge ? <span className="item-badge">{item.badge}</span> : null}
-                      </div>
-                      {item.description ? <p>{item.description}</p> : null}
-                    </div>
-                    <strong>{item.price}</strong>
-                  </div>
+                  <ProductRow key={`${comidasSection.id}-${item.name}`} item={item} />
                 ))}
               </div>
             </article>
           ) : null}
         </section>
-
       </main>
 
       <footer className="simple-footer">
         <p>{siteData.displayName}</p>
         <span>Bar | Pool | Asuncion</span>
       </footer>
+    </div>
+  )
+}
+
+function ProductRow({ item }: { item: MenuItem }) {
+  return (
+    <div className="menu-item product-row">
+      {item.image ? (
+        <div className="product-thumb">
+          <img src={item.image} alt={item.name} loading="lazy" />
+        </div>
+      ) : null}
+      <div className="item-copy">
+        <div className="item-title-row">
+          <h4>{item.name}</h4>
+          {item.badge ? <span className="item-badge">{item.badge}</span> : null}
+        </div>
+        {item.description ? <p>{item.description}</p> : null}
+      </div>
+      <strong>{item.price}</strong>
     </div>
   )
 }
@@ -243,19 +207,23 @@ function AdminPage({
   content: MenuContent
   onContentChange: (content: MenuContent) => void
 }) {
-  const [draft, setDraft] = useState<MenuContent>(() => cloneDefault(content))
+  const [draft, setDraft] = useState<MenuContent>(() => cloneValue(content))
   const [status, setStatus] = useState('Panel listo para editar.')
   const [jsonMode, setJsonMode] = useState(false)
   const [editorValue, setEditorValue] = useState(() => JSON.stringify(content, null, 2))
 
   const stats = useMemo(() => {
     const itemsCount = draft.menuSections.reduce((total, section) => total + section.items.length, 0)
+    const itemsWithImages = draft.menuSections.reduce(
+      (total, section) => total + section.items.filter((item) => item.image).length,
+      0,
+    )
 
     return [
       { label: 'Combos', value: draft.comboCards.length },
       { label: 'Categorias', value: draft.menuSections.length },
       { label: 'Items', value: itemsCount },
-      { label: 'Imagenes', value: draft.galleryImages.length },
+      { label: 'Imgs cargadas', value: itemsWithImages + draft.comboCards.filter((item) => item.image).length },
     ]
   }, [draft])
 
@@ -267,101 +235,84 @@ function AdminPage({
     })
   }
 
-  function updatePromoCard(type: 'featuredPromos' | 'comboCards', index: number, field: keyof PromoCard, value: string) {
+  function updateCombo(index: number, field: keyof PromoCard, value: string) {
     updateDraft((current) => {
-      const list = [...current[type]]
-      list[index] = { ...list[index], [field]: value }
-      return { ...current, [type]: list }
+      const comboCards = [...current.comboCards]
+      comboCards[index] = { ...comboCards[index], [field]: value }
+      return { ...current, comboCards }
     })
   }
 
   function updateSectionMeta(index: number, field: keyof MenuSection, value: string) {
     updateDraft((current) => {
-      const sections = [...current.menuSections]
-      sections[index] = { ...sections[index], [field]: value }
-      return { ...current, menuSections: sections }
+      const menuSections = [...current.menuSections]
+      menuSections[index] = { ...menuSections[index], [field]: value }
+      return { ...current, menuSections }
     })
   }
 
   function updateSectionItem(sectionIndex: number, itemIndex: number, field: keyof MenuItem, value: string) {
     updateDraft((current) => {
-      const sections = [...current.menuSections]
-      const items = [...sections[sectionIndex].items]
+      const menuSections = [...current.menuSections]
+      const items = [...menuSections[sectionIndex].items]
       items[itemIndex] = { ...items[itemIndex], [field]: value }
-      sections[sectionIndex] = { ...sections[sectionIndex], items }
-      return { ...current, menuSections: sections }
+      menuSections[sectionIndex] = { ...menuSections[sectionIndex], items }
+      return { ...current, menuSections }
     })
   }
 
   function addSectionItem(sectionIndex: number) {
     updateDraft((current) => {
-      const sections = [...current.menuSections]
-      sections[sectionIndex] = {
-        ...sections[sectionIndex],
-        items: [...sections[sectionIndex].items, emptyItem()],
+      const menuSections = [...current.menuSections]
+      menuSections[sectionIndex] = {
+        ...menuSections[sectionIndex],
+        items: [...menuSections[sectionIndex].items, emptyItem()],
       }
-      return { ...current, menuSections: sections }
+      return { ...current, menuSections }
     })
   }
 
   function removeSectionItem(sectionIndex: number, itemIndex: number) {
     updateDraft((current) => {
-      const sections = [...current.menuSections]
-      sections[sectionIndex] = {
-        ...sections[sectionIndex],
-        items: sections[sectionIndex].items.filter((_, index) => index !== itemIndex),
+      const menuSections = [...current.menuSections]
+      menuSections[sectionIndex] = {
+        ...menuSections[sectionIndex],
+        items: menuSections[sectionIndex].items.filter((_, index) => index !== itemIndex),
       }
-      return { ...current, menuSections: sections }
+      return { ...current, menuSections }
     })
   }
 
-  function addPromo(type: 'featuredPromos' | 'comboCards') {
+  function addCombo() {
     updateDraft((current) => ({
       ...current,
-      [type]: [...current[type], emptyPromo()],
+      comboCards: [...current.comboCards, emptyPromo()],
     }))
   }
 
-  function removePromo(type: 'featuredPromos' | 'comboCards', index: number) {
+  function removeCombo(index: number) {
     updateDraft((current) => ({
       ...current,
-      [type]: current[type].filter((_, itemIndex) => itemIndex !== index),
+      comboCards: current.comboCards.filter((_, itemIndex) => itemIndex !== index),
     }))
   }
 
-  function updateImage(index: number, field: keyof GalleryImage, value: string) {
-    updateDraft((current) => {
-      const images = [...current.galleryImages]
-      images[index] = { ...images[index], [field]: value }
-      return { ...current, galleryImages: images }
-    })
-  }
-
-  async function updateImageFile(index: number, event: ChangeEvent<HTMLInputElement>) {
+  async function updateComboImageFile(index: number, event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
-
-    if (!file) {
-      return
-    }
-
+    if (!file) return
     const base64 = await fileToBase64(file)
-    updateImage(index, 'src', base64)
-    setStatus(`Imagen cargada: ${file.name}`)
+    updateCombo(index, 'image', base64)
+    setStatus(`Imagen del combo cargada: ${file.name}`)
     event.target.value = ''
   }
 
-  function addImage() {
-    updateDraft((current) => ({
-      ...current,
-      galleryImages: [...current.galleryImages, emptyImage()],
-    }))
-  }
-
-  function removeImage(index: number) {
-    updateDraft((current) => ({
-      ...current,
-      galleryImages: current.galleryImages.filter((_, imageIndex) => imageIndex !== index),
-    }))
+  async function updateItemImageFile(sectionIndex: number, itemIndex: number, event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    if (!file) return
+    const base64 = await fileToBase64(file)
+    updateSectionItem(sectionIndex, itemIndex, 'image', base64)
+    setStatus(`Imagen del producto cargada: ${file.name}`)
+    event.target.value = ''
   }
 
   function handleSave() {
@@ -392,11 +343,7 @@ function AdminPage({
 
   async function handleImport(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
-
-    if (!file) {
-      return
-    }
-
+    if (!file) return
     const text = await file.text()
 
     try {
@@ -428,8 +375,8 @@ function AdminPage({
           <p className="section-kicker">Admin facil</p>
           <h1>Editar menu sin experiencia</h1>
           <p className="admin-note">
-            Cambia textos, precios e imagenes con formularios simples. Guarda al final para que
-            este navegador recuerde los cambios.
+            Cambia textos, precios e imagenes con formularios simples. Cada producto ya puede
+            tener su propia foto.
           </p>
         </div>
 
@@ -472,7 +419,7 @@ function AdminPage({
         <p className="admin-status">{status}</p>
 
         <div className="admin-sections">
-          <AdminCard title="Datos principales" description="Nombre visible y textos del encabezado.">
+          <AdminCard title="Datos principales" description="Nombre visible del sitio.">
             <div className="form-grid two-columns">
               <Field
                 label="Nombre grande"
@@ -497,24 +444,25 @@ function AdminPage({
             </div>
           </AdminCard>
 
-          <AdminCard title="Combos" description="Agrega, quita o cambia combos con ficha.">
+          <AdminCard title="Combos" description="Cada combo puede tener su foto propia.">
             <div className="stack-list">
               {draft.comboCards.map((combo, index) => (
-                <EditablePromoCard
+                <EditableComboCard
                   key={`combo-${index}`}
                   title={`Combo ${index + 1}`}
-                  promo={combo}
-                  onFieldChange={(field, value) => updatePromoCard('comboCards', index, field, value)}
-                  onRemove={() => removePromo('comboCards', index)}
+                  combo={combo}
+                  onFieldChange={(field, value) => updateCombo(index, field, value)}
+                  onRemove={() => removeCombo(index)}
+                  onImageUpload={(event) => updateComboImageFile(index, event)}
                 />
               ))}
             </div>
-            <button type="button" className="admin-button add-button" onClick={() => addPromo('comboCards')}>
+            <button type="button" className="admin-button add-button" onClick={addCombo}>
               Agregar combo
             </button>
           </AdminCard>
 
-          <AdminCard title="Categorias del menu" description="Aqui cambias nombres, precios y descripciones.">
+          <AdminCard title="Categorias del menu" description="Cada producto puede tener foto, precio y descripcion.">
             <div className="stack-list">
               {draft.menuSections.map((section, sectionIndex) => (
                 <div className="editor-card" key={section.id}>
@@ -559,31 +507,56 @@ function AdminPage({
                           </button>
                         </div>
 
-                        <div className="form-grid two-columns">
-                          <Field
-                            label="Nombre"
-                            value={item.name}
-                            onChange={(value) => updateSectionItem(sectionIndex, itemIndex, 'name', value)}
-                          />
-                          <Field
-                            label="Precio"
-                            value={item.price}
-                            onChange={(value) => updateSectionItem(sectionIndex, itemIndex, 'price', value)}
-                          />
+                        <div className="item-admin-grid">
+                          <div className="image-preview-frame small-preview">
+                            {item.image ? <img src={item.image} alt={item.name} /> : <span>Sin imagen</span>}
+                          </div>
+
+                          <div className="stack-list tight">
+                            <div className="form-grid two-columns">
+                              <Field
+                                label="Nombre"
+                                value={item.name}
+                                onChange={(value) => updateSectionItem(sectionIndex, itemIndex, 'name', value)}
+                              />
+                              <Field
+                                label="Precio"
+                                value={item.price}
+                                onChange={(value) => updateSectionItem(sectionIndex, itemIndex, 'price', value)}
+                              />
+                            </div>
+
+                            <Field
+                              label="Descripcion"
+                              value={item.description ?? ''}
+                              onChange={(value) =>
+                                updateSectionItem(sectionIndex, itemIndex, 'description', value)
+                              }
+                              multiline
+                            />
+
+                            <Field
+                              label="Etiqueta opcional"
+                              value={item.badge ?? ''}
+                              onChange={(value) => updateSectionItem(sectionIndex, itemIndex, 'badge', value)}
+                            />
+
+                            <Field
+                              label="Link de imagen"
+                              value={item.image ?? ''}
+                              onChange={(value) => updateSectionItem(sectionIndex, itemIndex, 'image', value)}
+                            />
+
+                            <label className="upload-box">
+                              Subir imagen del producto
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(event) => updateItemImageFile(sectionIndex, itemIndex, event)}
+                              />
+                            </label>
+                          </div>
                         </div>
-
-                        <Field
-                          label="Descripcion"
-                          value={item.description ?? ''}
-                          onChange={(value) => updateSectionItem(sectionIndex, itemIndex, 'description', value)}
-                          multiline
-                        />
-
-                        <Field
-                          label="Etiqueta opcional"
-                          value={item.badge ?? ''}
-                          onChange={(value) => updateSectionItem(sectionIndex, itemIndex, 'badge', value)}
-                        />
                       </div>
                     ))}
                   </div>
@@ -594,47 +567,6 @@ function AdminPage({
                 </div>
               ))}
             </div>
-          </AdminCard>
-
-          <AdminCard title="Imagenes del sitio" description="Estas imagenes aparecen dentro de las 4 secciones del menu.">
-            <div className="stack-list">
-              {draft.galleryImages.map((image, index) => (
-                <div className="editor-card" key={`image-${index}`}>
-                  <div className="editor-card-header">
-                    <strong>Imagen {index + 1}</strong>
-                    <button type="button" className="remove-link" onClick={() => removeImage(index)}>
-                      Eliminar
-                    </button>
-                  </div>
-
-                  <div className="image-editor-grid">
-                    <div className="image-preview-frame">
-                      {image.src ? <img src={image.src} alt={image.alt} /> : <span>Sin imagen</span>}
-                    </div>
-
-                    <div className="stack-list tight">
-                      <Field
-                        label="Texto alternativo"
-                        value={image.alt}
-                        onChange={(value) => updateImage(index, 'alt', value)}
-                      />
-                      <Field
-                        label="Link de imagen"
-                        value={image.src}
-                        onChange={(value) => updateImage(index, 'src', value)}
-                      />
-                      <label className="upload-box">
-                        Subir imagen desde el celular o PC
-                        <input type="file" accept="image/*" onChange={(event) => updateImageFile(index, event)} />
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <button type="button" className="admin-button add-button" onClick={addImage}>
-              Agregar imagen
-            </button>
           </AdminCard>
 
           <details className="advanced-json">
@@ -664,16 +596,18 @@ function AdminPage({
   )
 }
 
-function EditablePromoCard({
+function EditableComboCard({
   title,
-  promo,
+  combo,
   onFieldChange,
   onRemove,
+  onImageUpload,
 }: {
   title: string
-  promo: PromoCard
+  combo: PromoCard
   onFieldChange: (field: keyof PromoCard, value: string) => void
   onRemove: () => void
+  onImageUpload: (event: ChangeEvent<HTMLInputElement>) => void
 }) {
   return (
     <div className="editor-card">
@@ -684,19 +618,32 @@ function EditablePromoCard({
         </button>
       </div>
 
-      <div className="form-grid two-columns">
-        <Field label="Titulo" value={promo.title} onChange={(value) => onFieldChange('title', value)} />
-        <Field label="Precio" value={promo.price} onChange={(value) => onFieldChange('price', value)} />
+      <div className="item-admin-grid">
+        <div className="image-preview-frame small-preview">
+          {combo.image ? <img src={combo.image} alt={combo.title} /> : <span>Sin imagen</span>}
+        </div>
+
+        <div className="stack-list tight">
+          <div className="form-grid two-columns">
+            <Field label="Titulo" value={combo.title} onChange={(value) => onFieldChange('title', value)} />
+            <Field label="Precio" value={combo.price} onChange={(value) => onFieldChange('price', value)} />
+          </div>
+
+          <Field
+            label="Descripcion"
+            value={combo.description}
+            onChange={(value) => onFieldChange('description', value)}
+            multiline
+          />
+
+          <Field label="Etiqueta" value={combo.badge ?? ''} onChange={(value) => onFieldChange('badge', value)} />
+          <Field label="Link de imagen" value={combo.image ?? ''} onChange={(value) => onFieldChange('image', value)} />
+          <label className="upload-box">
+            Subir imagen del combo
+            <input type="file" accept="image/*" onChange={onImageUpload} />
+          </label>
+        </div>
       </div>
-
-      <Field
-        label="Descripcion"
-        value={promo.description}
-        onChange={(value) => onFieldChange('description', value)}
-        multiline
-      />
-
-      <Field label="Etiqueta" value={promo.badge ?? ''} onChange={(value) => onFieldChange('badge', value)} />
     </div>
   )
 }
@@ -744,7 +691,7 @@ function Field({
   )
 }
 
-function cloneDefault<T>(value: T) {
+function cloneValue<T>(value: T) {
   return JSON.parse(JSON.stringify(value)) as T
 }
 

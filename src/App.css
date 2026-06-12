@@ -70,7 +70,7 @@
 }
 
 .brand-logo {
-  width: clamp(118px, 24vw, 210px);
+  width: clamp(150px, 28vw, 260px);
   height: auto;
   display: block;
   border-radius: 18px;
@@ -213,26 +213,9 @@
   font-size: clamp(2.1rem, 8vw, 3.3rem);
 }
 
-.section-visual {
-  margin-bottom: 14px;
-  border-radius: 20px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(14, 17, 28, 0.74);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-.section-visual img {
-  width: 100%;
-  max-height: 280px;
-  object-fit: cover;
-  display: block;
-}
-
 .combo-grid,
 .menu-subsections,
 .menu-items,
-.gallery-grid,
 .admin-overview,
 .admin-toolbar,
 .admin-header,
@@ -252,7 +235,6 @@
 
 .menu-section,
 .menu-card,
-.gallery-card,
 .admin-header,
 .admin-panel,
 .admin-stat-card {
@@ -354,23 +336,6 @@
 .menu-card strong,
 .menu-item strong {
   font-size: clamp(1.4rem, 5vw, 1.9rem);
-}
-
-.gallery-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.gallery-card {
-  padding: 8px;
-}
-
-.gallery-card img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  border-radius: 16px;
 }
 
 .simple-footer {
@@ -599,6 +564,46 @@
   object-fit: cover;
 }
 
+.item-admin-grid {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.small-preview {
+  min-height: 140px;
+}
+
+.product-row {
+  align-items: center;
+}
+
+.product-thumb,
+.combo-image {
+  width: 86px;
+  height: 86px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(6, 10, 18, 0.92);
+}
+
+.product-thumb img,
+.combo-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.combo-image {
+  width: 100%;
+  height: 180px;
+  margin-bottom: 8px;
+}
+
 .upload-box {
   display: grid;
   gap: 8px;
@@ -650,11 +655,11 @@
   .combo-grid,
   .menu-subsections,
   .menu-items,
-  .gallery-grid,
   .admin-overview,
   .admin-header,
   .two-columns,
-  .image-editor-grid {
+  .image-editor-grid,
+  .item-admin-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -672,7 +677,7 @@
   }
 
   .brand-logo {
-    width: 108px;
+    width: 140px;
     border-radius: 14px;
   }
 
@@ -695,12 +700,21 @@
     padding: 10px;
   }
 
-  .menu-item {
+  .menu-item strong {
+    text-align: left;
+  }
+
+  .menu-item:not(.product-row) {
     flex-direction: column;
   }
 
-  .menu-item strong {
-    text-align: left;
+  .product-row {
+    align-items: center;
+  }
+
+  .product-thumb {
+    width: 88px;
+    height: 88px;
   }
 
   .simple-footer {
