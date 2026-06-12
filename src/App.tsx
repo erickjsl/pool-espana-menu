@@ -791,15 +791,11 @@ function AdminPage({
                               onChange={(value) => updateSectionItem(sectionIndex, itemIndex, 'image', value)}
                             />
 
-                            <label className="upload-box">
-                              Subir imagen del producto
-                              <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(event) => updateItemImageFile(sectionIndex, itemIndex, event)}
-                              />
-                              <span>La vista previa cambia al elegir el archivo. Despues, guarda para todos.</span>
-                            </label>
+                            <ImageUploadField
+                              title="Imagen del producto"
+                              image={item.image ?? ''}
+                              onChange={(event) => updateItemImageFile(sectionIndex, itemIndex, event)}
+                            />
                           </div>
                         </div>
                       </div>
@@ -883,14 +879,35 @@ function EditableComboCard({
 
           <Field label="Etiqueta" value={combo.badge ?? ''} onChange={(value) => onFieldChange('badge', value)} />
           <Field label="Link de imagen" value={combo.image ?? ''} onChange={(value) => onFieldChange('image', value)} />
-          <label className="upload-box">
-            Subir imagen del combo
-            <input type="file" accept="image/*" onChange={onImageUpload} />
-            <span>La vista previa cambia al elegir el archivo. Despues, guarda para todos.</span>
-          </label>
+          <ImageUploadField title="Imagen del combo" image={combo.image ?? ''} onChange={onImageUpload} />
         </div>
       </div>
     </div>
+  )
+}
+
+function ImageUploadField({
+  title,
+  image,
+  onChange,
+}: {
+  title: string
+  image: string
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void
+}) {
+  const hasPreparedImage = image.startsWith('data:image/')
+
+  return (
+    <label className="upload-box">
+      <span className="upload-title">{title}</span>
+      <span className="upload-action">Elegir imagen</span>
+      <input type="file" accept="image/*" onChange={onChange} />
+      <span className={hasPreparedImage ? 'upload-success' : undefined}>
+        {hasPreparedImage
+          ? 'Imagen cargada. Ahora toca Guardar para todos.'
+          : 'La vista previa cambia al elegir el archivo.'}
+      </span>
+    </label>
   )
 }
 

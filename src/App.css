@@ -691,6 +691,7 @@
 .upload-box {
   display: grid;
   gap: 8px;
+  cursor: pointer;
   color: var(--text-strong);
   font-weight: 700;
   padding: 12px 14px;
@@ -700,7 +701,11 @@
 }
 
 .upload-box input {
-  color: var(--text-soft);
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .upload-box span {
@@ -708,6 +713,27 @@
   font-size: 0.84rem;
   font-weight: 600;
   line-height: 1.35;
+}
+
+.upload-box .upload-title {
+  color: var(--text-strong);
+  font-size: 1rem;
+}
+
+.upload-box .upload-action {
+  width: fit-content;
+  color: #1a0f02;
+  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffd36a, #ff8a00);
+  box-shadow: 0 0 18px rgba(255, 138, 0, 0.24);
+}
+
+.upload-box .upload-success {
+  color: #ffd36a;
 }
 
 .advanced-json {
