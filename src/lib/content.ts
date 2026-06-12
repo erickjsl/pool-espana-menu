@@ -105,7 +105,7 @@ export async function uploadRemoteImage(file: File) {
     | null
 
   if (!response.ok || !payload?.path) {
-    throw new Error(payload?.message ?? 'No se pudo subir la imagen.')
+    throw new Error(`Upload fallo (${response.status}): ${payload?.message ?? 'No se pudo subir la imagen.'}`)
   }
 
   return payload.path

@@ -53,6 +53,7 @@ export default async function handler(req, res) {
   } catch (error) {
     const message = error instanceof Error ? error.message : 'No se pudo subir la imagen.'
     const statusCode = typeof error === 'object' && error && 'statusCode' in error ? error.statusCode : 500
+    console.error('upload-image failed', { statusCode, message })
     res.status(statusCode).json({ message })
   }
 }

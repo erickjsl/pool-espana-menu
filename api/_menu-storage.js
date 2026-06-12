@@ -7,6 +7,12 @@ const DEFAULT_REPO = 'erickjsl/pool-espana-menu'
 const DEFAULT_BRANCH = 'main'
 const DEFAULT_CONTENT_PATH = 'content/menu-content.json'
 
+function createHttpError(message, statusCode = 500) {
+  const error = new Error(message)
+  error.statusCode = statusCode
+  return error
+}
+
 function getStorageConfig() {
   return {
     token: process.env.MENU_CONTENT_GITHUB_TOKEN || process.env.GITHUB_CONTENT_TOKEN || '',
@@ -64,13 +70,17 @@ export async function writeMenuContent(content) {
   const { token, repo, branch, contentPath } = getStorageConfig()
 
   if (!token) {
-    throw new Error('Falta configurar MENU_CONTENT_GITHUB_TOKEN en Vercel.')
+    throw createHttpError('Falta configurar MENU_CONTENT_GITHUB_TOKEN en Vercel.', 500)
   }
 
   const getResponse = await githubRequest(buildContentsUrl(), { method: 'GET' })
 
   if (!getResponse.ok) {
-    throw new Error('No se pudo leer el archivo actual del menu en GitHub.')
+    const payload = await getResponse.json().catch(() => null)
+    throw createHttpError(
+      payload?.message || 'No se pudo leer el archivo actual del menu en GitHub.',
+      getResponse.status,
+    )
   }
 
   const currentFile = await getResponse.json()
@@ -91,7 +101,10 @@ export async function writeMenuContent(content) {
 
   if (!putResponse.ok) {
     const payload = await putResponse.json().catch(() => null)
-    throw new Error(payload?.message || 'No se pudo guardar el menu central en GitHub.')
+    throw createHttpError(
+      payload?.message || 'No se pudo guardar el menu central en GitHub.',
+      putResponse.status,
+    )
   }
 
   return content
@@ -101,7 +114,7 @@ export async function uploadRepositoryFile({ filePath, content, message }) {
   const { token, repo, branch } = getStorageConfig()
 
   if (!token) {
-    throw new Error('Falta configurar MENU_CONTENT_GITHUB_TOKEN en Vercel.')
+    throw createHttpError('Falta configurar MENU_CONTENT_GITHUB_TOKEN en Vercel.', 500)
   }
 
   const putResponse = await githubRequest(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
@@ -118,7 +131,7 @@ export async function uploadRepositoryFile({ filePath, content, message }) {
 
   if (!putResponse.ok) {
     const payload = await putResponse.json().catch(() => null)
-    throw new Error(payload?.message || 'No se pudo subir la imagen.')
+    throw createHttpError(payload?.message || 'No se pudo subir la imagen.', putResponse.status)
   }
 
   return await putResponse.json()
