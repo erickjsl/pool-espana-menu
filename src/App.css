@@ -11,6 +11,12 @@
   box-shadow: 0 24px 90px rgba(0, 0, 0, 0.45);
 }
 
+.menu-block,
+.menu-section,
+.admin-block {
+  scroll-margin-top: 88px;
+}
+
 .menu-hero {
   position: relative;
   min-height: 300px;
@@ -150,6 +156,12 @@
   padding: 12px;
   background: rgba(5, 8, 16, 0.96);
   border-bottom: 1px solid var(--border);
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+}
+
+.category-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .category-nav a,
@@ -177,6 +189,7 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 0.86rem;
+  scroll-snap-align: start;
 }
 
 .primary-cta {
@@ -283,13 +296,19 @@
 }
 
 .menu-item {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
   gap: 12px;
   padding: 14px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.product-row {
+  grid-template-columns: 86px minmax(0, 1fr) auto;
+  align-items: center;
 }
 
 .item-copy {
@@ -336,6 +355,8 @@
 .menu-card strong,
 .menu-item strong {
   font-size: clamp(1.4rem, 5vw, 1.9rem);
+  white-space: nowrap;
+  justify-self: end;
 }
 
 .simple-footer {
@@ -575,10 +596,6 @@
   min-height: 140px;
 }
 
-.product-row {
-  align-items: center;
-}
-
 .product-thumb,
 .combo-image {
   width: 86px;
@@ -662,23 +679,28 @@
   .item-admin-grid {
     grid-template-columns: 1fr;
   }
+
+  .menu-items {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
   .page-shell,
   .admin-shell {
-    width: min(100%, calc(100% - 8px));
-    border-radius: 18px;
+    width: min(100%, calc(100% - 6px));
+    margin: 3px auto;
+    border-radius: 16px;
   }
 
   .menu-hero,
   .menu-hero-content {
-    min-height: 250px;
+    min-height: 232px;
   }
 
   .brand-logo {
-    width: 140px;
-    border-radius: 14px;
+    width: 132px;
+    border-radius: 12px;
   }
 
   .menu-block,
@@ -690,39 +712,172 @@
     padding-right: 14px;
   }
 
+  .menu-hero-content {
+    gap: 10px;
+    padding-top: 16px;
+    padding-bottom: 18px;
+  }
+
+  .brand-lockup {
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  .eyebrow,
+  .section-kicker,
+  .brand-meta,
+  .hero-slogan {
+    letter-spacing: 0.14em;
+  }
+
+  .menu-hero-content h1 {
+    font-size: clamp(2.8rem, 18vw, 4rem);
+  }
+
   .block-heading,
   .simple-footer {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .category-nav {
-    padding: 10px;
+  .block-heading {
+    gap: 8px;
+    margin-bottom: 12px;
   }
 
-  .menu-item strong {
-    text-align: left;
+  .block-heading h2 {
+    font-size: clamp(1.8rem, 11vw, 2.5rem);
+  }
+
+  .category-nav {
+    gap: 8px;
+    padding: 10px 10px 11px;
+  }
+
+  .category-nav a {
+    padding: 10px 12px;
+    font-size: 0.8rem;
   }
 
   .menu-item:not(.product-row) {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 
   .product-row {
-    align-items: center;
+    grid-template-columns: 74px minmax(0, 1fr);
+    align-items: start;
+    column-gap: 12px;
+    row-gap: 8px;
   }
 
   .product-thumb {
-    width: 88px;
-    height: 88px;
+    width: 74px;
+    height: 74px;
+    border-radius: 14px;
+    grid-row: span 2;
+  }
+
+  .menu-item h4 {
+    font-size: 0.92rem;
+    line-height: 1.2;
+  }
+
+  .menu-item p {
+    font-size: 0.84rem;
+    line-height: 1.45;
+  }
+
+  .menu-item strong {
+    justify-self: start;
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  .combo-grid {
+    gap: 10px;
+  }
+
+  .menu-card,
+  .menu-section,
+  .admin-block,
+  .admin-header,
+  .admin-panel,
+  .admin-stat-card {
+    border-radius: 18px;
+  }
+
+  .menu-card,
+  .menu-section,
+  .admin-block,
+  .admin-panel {
+    padding: 14px;
+  }
+
+  .combo-image {
+    height: 150px;
+    border-radius: 14px;
+  }
+
+  .editor-card,
+  .sub-editor-card {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .admin-header-actions,
+  .admin-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-button,
+  .secondary-cta {
+    width: 100%;
   }
 
   .simple-footer {
     font-size: 0.84rem;
+    padding-bottom: 18px;
   }
 
   .admin-editor {
     min-height: 68svh;
     font-size: 0.86rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .page-shell,
+  .admin-shell {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  .menu-block,
+  .menu-hero-content,
+  .admin-shell,
+  .admin-header,
+  .admin-panel {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .product-row {
+    grid-template-columns: 68px minmax(0, 1fr);
+  }
+
+  .product-thumb {
+    width: 68px;
+    height: 68px;
+  }
+
+  .menu-item strong {
+    font-size: 1.15rem;
+  }
+
+  .brand-logo {
+    width: 120px;
   }
 }
