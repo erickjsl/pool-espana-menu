@@ -484,21 +484,35 @@ function AdminPage({
   async function updateComboImageFile(index: number, event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
     if (!file) return
-    setStatus(`Subiendo imagen del combo: ${file.name}...`)
-    const path = await uploadRemoteImage(file)
-    updateCombo(index, 'image', path)
-    setStatus(`Imagen del combo lista: ${file.name}`)
-    event.target.value = ''
+
+    try {
+      setStatus(`Subiendo imagen del combo: ${file.name}...`)
+      const path = await uploadRemoteImage(file)
+      updateCombo(index, 'image', path)
+      setStatus(`Imagen del combo lista. Ahora toca Guardar para todos.`)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'No se pudo subir la imagen del combo.'
+      setStatus(message)
+    } finally {
+      event.target.value = ''
+    }
   }
 
   async function updateItemImageFile(sectionIndex: number, itemIndex: number, event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
     if (!file) return
-    setStatus(`Subiendo imagen del producto: ${file.name}...`)
-    const path = await uploadRemoteImage(file)
-    updateSectionItem(sectionIndex, itemIndex, 'image', path)
-    setStatus(`Imagen del producto lista: ${file.name}`)
-    event.target.value = ''
+
+    try {
+      setStatus(`Subiendo imagen del producto: ${file.name}...`)
+      const path = await uploadRemoteImage(file)
+      updateSectionItem(sectionIndex, itemIndex, 'image', path)
+      setStatus(`Imagen del producto lista. Ahora toca Guardar para todos.`)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'No se pudo subir la imagen del producto.'
+      setStatus(message)
+    } finally {
+      event.target.value = ''
+    }
   }
 
   async function handleSave() {

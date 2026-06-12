@@ -39,13 +39,17 @@ export default async function handler(req, res) {
     const filePath = `public/uploads/${uniqueName}`
     const content = stripDataUrl(dataUrl)
 
-    await uploadRepositoryFile({
+    const uploadResult = await uploadRepositoryFile({
       filePath,
       content,
       message: `chore: upload menu image ${uniqueName}`,
     })
 
-    res.status(200).json({ path: `/uploads/${uniqueName}` })
+    const downloadUrl = uploadResult?.content?.download_url
+    const publicPath = downloadUrl || `/uploads/${uniqueName}`
+    const separator = publicPath.includes('?') ? '&' : '?'
+
+    res.status(200).json({ path: `${publicPath}${separator}v=${Date.now()}` })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'No se pudo subir la imagen.'
     const statusCode = typeof error === 'object' && error && 'statusCode' in error ? error.statusCode : 500

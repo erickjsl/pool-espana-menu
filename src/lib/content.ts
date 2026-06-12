@@ -84,14 +84,15 @@ export async function saveRemoteContent(content: MenuContent) {
 }
 
 export async function uploadRemoteImage(file: File) {
-  const dataUrl = await fileToDataUrl(file)
+  const preparedFile = await prepareImageForUpload(file)
+  const dataUrl = await fileToDataUrl(preparedFile)
   const response = await fetch('/api/upload-image', {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      fileName: file.name,
-      mimeType: file.type,
+      fileName: preparedFile.name,
+      mimeType: preparedFile.type,
       dataUrl,
     }),
   })
@@ -108,6 +109,65 @@ export async function uploadRemoteImage(file: File) {
   }
 
   return payload.path
+}
+
+async function prepareImageForUpload(file: File) {
+  if (!file.type.startsWith('image/')) {
+    throw new Error('El archivo seleccionado no es una imagen.')
+  }
+
+  if (file.type === 'image/gif' || file.type === 'image/webp') {
+    return file
+  }
+
+  return compressImage(file)
+}
+
+function compressImage(file: File) {
+  return new Promise<File>((resolve, reject) => {
+    const image = new Image()
+    const url = URL.createObjectURL(file)
+
+    image.onload = () => {
+      URL.revokeObjectURL(url)
+
+      const maxSize = 1100
+      const ratio = Math.min(1, maxSize / Math.max(image.width, image.height))
+      const width = Math.max(1, Math.round(image.width * ratio))
+      const height = Math.max(1, Math.round(image.height * ratio))
+      const canvas = document.createElement('canvas')
+      const context = canvas.getContext('2d')
+
+      if (!context) {
+        reject(new Error('No se pudo preparar la imagen.'))
+        return
+      }
+
+      canvas.width = width
+      canvas.height = height
+      context.drawImage(image, 0, 0, width, height)
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error('No se pudo comprimir la imagen.'))
+            return
+          }
+
+          const name = file.name.replace(/\.[^.]+$/, '') || 'image'
+          resolve(new File([blob], `${name}.jpg`, { type: 'image/jpeg' }))
+        },
+        'image/jpeg',
+        0.82,
+      )
+    }
+
+    image.onerror = () => {
+      URL.revokeObjectURL(url)
+      reject(new Error('No se pudo leer la imagen seleccionada.'))
+    }
+
+    image.src = url
+  })
 }
 
 function fileToDataUrl(file: File) {
