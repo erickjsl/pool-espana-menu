@@ -703,6 +703,13 @@
   color: var(--text-soft);
 }
 
+.upload-box span {
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
 .advanced-json {
   background: rgba(14, 17, 28, 0.74);
   border: 1px solid rgba(255, 255, 255, 0.08);

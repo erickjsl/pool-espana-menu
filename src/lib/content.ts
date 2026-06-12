@@ -108,7 +108,7 @@ function compressImage(file: File) {
     image.onload = () => {
       URL.revokeObjectURL(url)
 
-      const maxSize = 1100
+      const maxSize = 760
       const ratio = Math.min(1, maxSize / Math.max(image.width, image.height))
       const width = Math.max(1, Math.round(image.width * ratio))
       const height = Math.max(1, Math.round(image.height * ratio))
@@ -134,7 +134,7 @@ function compressImage(file: File) {
           resolve(new File([blob], `${name}.jpg`, { type: 'image/jpeg' }))
         },
         'image/jpeg',
-        0.82,
+        0.76,
       )
     }
 

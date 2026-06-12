@@ -8,6 +8,7 @@ import {
   fetchRemoteContent,
   readStoredContent,
   saveRemoteContent,
+  saveStoredContent,
   uploadRemoteImage,
 } from './lib/content'
 
@@ -134,11 +135,20 @@ function AdminAccess({
     return <AdminLogin onSuccess={() => setStatus('authenticated')} />
   }
 
-  const adminContentKey = JSON.stringify(content)
+  if (contentStatus === 'loading') {
+    return (
+      <div className="admin-shell auth-shell">
+        <div className="auth-card">
+          <p className="section-kicker">Admin protegido</p>
+          <h1>Cargando menu central</h1>
+          <p className="auth-help">Estamos preparando la ultima version antes de editar.</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <AdminPage
-      key={adminContentKey}
       content={content}
       onContentChange={onContentChange}
       onLogout={() => setStatus('unauthenticated')}
@@ -517,6 +527,7 @@ function AdminPage({
 
   async function handleSave() {
     setIsSaving(true)
+    saveStoredContent(draft)
 
     try {
       const savedContent = await saveRemoteContent(draft)
@@ -787,6 +798,7 @@ function AdminPage({
                                 accept="image/*"
                                 onChange={(event) => updateItemImageFile(sectionIndex, itemIndex, event)}
                               />
+                              <span>La vista previa cambia al elegir el archivo. Despues, guarda para todos.</span>
                             </label>
                           </div>
                         </div>
@@ -874,6 +886,7 @@ function EditableComboCard({
           <label className="upload-box">
             Subir imagen del combo
             <input type="file" accept="image/*" onChange={onImageUpload} />
+            <span>La vista previa cambia al elegir el archivo. Despues, guarda para todos.</span>
           </label>
         </div>
       </div>
