@@ -13,6 +13,18 @@ function createHttpError(message, statusCode = 500) {
   return error
 }
 
+function getGitHubErrorMessage(payload, fallback, statusCode) {
+  if (statusCode === 404) {
+    return 'GitHub no encontro el archivo del menu. Revisa si MENU_CONTENT_GITHUB_TOKEN tiene permiso Contents Read/Write para erickjsl/pool-espana-menu y si MENU_CONTENT_GITHUB_PATH es content/menu-content.json.'
+  }
+
+  if (statusCode === 401 || statusCode === 403) {
+    return 'GitHub rechazo el token. Revisa MENU_CONTENT_GITHUB_TOKEN en Vercel con permiso Contents Read/Write.'
+  }
+
+  return payload?.message || fallback
+}
+
 function getStorageConfig() {
   return {
     token: process.env.MENU_CONTENT_GITHUB_TOKEN || process.env.GITHUB_CONTENT_TOKEN || '',
@@ -78,7 +90,11 @@ export async function writeMenuContent(content) {
   if (!getResponse.ok) {
     const payload = await getResponse.json().catch(() => null)
     throw createHttpError(
-      payload?.message || 'No se pudo leer el archivo actual del menu en GitHub.',
+      getGitHubErrorMessage(
+        payload,
+        'No se pudo leer el archivo actual del menu en GitHub.',
+        getResponse.status,
+      ),
       getResponse.status,
     )
   }
@@ -102,7 +118,7 @@ export async function writeMenuContent(content) {
   if (!putResponse.ok) {
     const payload = await putResponse.json().catch(() => null)
     throw createHttpError(
-      payload?.message || 'No se pudo guardar el menu central en GitHub.',
+      getGitHubErrorMessage(payload, 'No se pudo guardar el menu central en GitHub.', putResponse.status),
       putResponse.status,
     )
   }
@@ -131,7 +147,10 @@ export async function uploadRepositoryFile({ filePath, content, message }) {
 
   if (!putResponse.ok) {
     const payload = await putResponse.json().catch(() => null)
-    throw createHttpError(payload?.message || 'No se pudo subir la imagen.', putResponse.status)
+    throw createHttpError(
+      getGitHubErrorMessage(payload, 'No se pudo subir la imagen.', putResponse.status),
+      putResponse.status,
+    )
   }
 
   return await putResponse.json()

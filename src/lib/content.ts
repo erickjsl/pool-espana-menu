@@ -85,41 +85,7 @@ export async function saveRemoteContent(content: MenuContent) {
 
 export async function uploadRemoteImage(file: File) {
   const preparedFile = await prepareImageForUpload(file)
-  const dataUrl = await fileToDataUrl(preparedFile)
-
-  try {
-    const response = await fetch('/api/upload-image', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fileName: preparedFile.name,
-        mimeType: preparedFile.type,
-        dataUrl,
-      }),
-    })
-
-    const payload = (await response.json().catch(() => null)) as
-      | {
-          path?: string
-          message?: string
-        }
-      | null
-
-    if (response.ok && payload?.path) {
-      return payload.path
-    }
-
-    if (response.status === 401 || response.status === 403) {
-      throw new Error(payload?.message ?? 'Sesion expirada. Entra de nuevo al admin.')
-    }
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('Sesion expirada')) {
-      throw error
-    }
-  }
-
-  return dataUrl
+  return fileToDataUrl(preparedFile)
 }
 
 async function prepareImageForUpload(file: File) {
