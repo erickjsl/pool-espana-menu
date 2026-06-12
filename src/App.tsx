@@ -225,11 +225,42 @@ function PublicPage({
   contentStatus: 'idle' | 'loading' | 'error'
 }) {
   const { siteData, comboCards, menuSections } = content
+  const [activeCategory, setActiveCategory] = useState(quickLinks[0].href)
   const bebidasSections = menuSections.filter((section) =>
     ['chopp', 'cervezas', 'gaseosas', 'whisky'].includes(section.id),
   )
   const tragosSection = menuSections.find((section) => section.id === 'tragos')
   const comidasSection = menuSections.find((section) => section.id === 'comidas')
+
+  useEffect(() => {
+    const sections = quickLinks
+      .map((link) => document.querySelector(link.href))
+      .filter((section): section is HTMLElement => section instanceof HTMLElement)
+
+    if (!sections.length) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleEntry = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+
+        if (visibleEntry?.target.id) {
+          setActiveCategory(`#${visibleEntry.target.id}`)
+        }
+      },
+      {
+        rootMargin: '-25% 0px -58% 0px',
+        threshold: [0.05, 0.25, 0.5],
+      },
+    )
+
+    sections.forEach((section) => observer.observe(section))
+
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <div className="page-shell">
@@ -257,7 +288,13 @@ function PublicPage({
 
       <nav className="category-nav" aria-label="Navegacion de categorias">
         {quickLinks.map((link) => (
-          <a key={link.href} href={link.href}>
+          <a
+            key={link.href}
+            href={link.href}
+            className={activeCategory === link.href ? 'active' : undefined}
+            aria-current={activeCategory === link.href ? 'true' : undefined}
+            onClick={() => setActiveCategory(link.href)}
+          >
             {link.label}
           </a>
         ))}

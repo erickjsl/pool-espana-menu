@@ -206,6 +206,15 @@
   transform: translateY(-2px);
 }
 
+.category-nav a.active {
+  color: #170b00;
+  background: linear-gradient(135deg, #ffd36a, #ff8a00 55%, #ff5a1f);
+  border-color: rgba(255, 211, 106, 0.88);
+  box-shadow:
+    0 0 0 1px rgba(255, 211, 106, 0.3),
+    0 0 20px rgba(255, 138, 0, 0.42);
+}
+
 .menu-main {
   padding: 8px 0 24px;
 }
@@ -223,6 +232,7 @@
 
 .menu-block {
   padding: 18px;
+  scroll-margin-top: 74px;
 }
 
 .block-heading {
