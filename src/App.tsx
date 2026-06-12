@@ -1,4 +1,4 @@
-import { type ChangeEvent, type ReactNode, useMemo, useState } from 'react'
+import { type ChangeEvent, type FormEvent, type ReactNode, useEffect, useMemo, useState } from 'react'
 import './App.css'
 import { type MenuContent, type MenuItem, type MenuSection, type PromoCard } from './data/menu'
 import { clearStoredContent, cloneDefaultContent, readStoredContent, saveStoredContent } from './lib/content'
@@ -34,10 +34,127 @@ function App() {
   const [content, setContent] = useState<MenuContent>(() => readStoredContent())
 
   if (isAdminRoute) {
-    return <AdminPage content={content} onContentChange={setContent} />
+    return <AdminAccess content={content} onContentChange={setContent} />
   }
 
   return <PublicPage content={content} />
+}
+
+function AdminAccess({
+  content,
+  onContentChange,
+}: {
+  content: MenuContent
+  onContentChange: (content: MenuContent) => void
+}) {
+  const [status, setStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading')
+
+  useEffect(() => {
+    let active = true
+
+    async function checkSession() {
+      try {
+        const response = await fetch('/api/admin-session', {
+          method: 'GET',
+          credentials: 'include',
+        })
+
+        if (!active) {
+          return
+        }
+
+        setStatus(response.ok ? 'authenticated' : 'unauthenticated')
+      } catch {
+        if (active) {
+          setStatus('unauthenticated')
+        }
+      }
+    }
+
+    void checkSession()
+
+    return () => {
+      active = false
+    }
+  }, [])
+
+  if (status === 'loading') {
+    return (
+      <div className="admin-shell auth-shell">
+        <div className="auth-card">
+          <p className="section-kicker">Admin protegido</p>
+          <h1>Verificando acceso</h1>
+          <p className="auth-help">Un momento mientras validamos la sesion.</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (status === 'unauthenticated') {
+    return <AdminLogin onSuccess={() => setStatus('authenticated')} />
+  }
+
+  return <AdminPage content={content} onContentChange={onContentChange} onLogout={() => setStatus('unauthenticated')} />
+}
+
+function AdminLogin({ onSuccess }: { onSuccess: () => void }) {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setLoading(true)
+    setError('')
+
+    try {
+      const response = await fetch('/api/admin-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ username, password }),
+      })
+
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as { message?: string } | null
+        setError(payload?.message ?? 'Usuario o contrasena incorrectos.')
+        setLoading(false)
+        return
+      }
+
+      onSuccess()
+    } catch {
+      setError('No se pudo iniciar sesion. Intenta de nuevo.')
+      setLoading(false)
+      return
+    }
+
+    setLoading(false)
+  }
+
+  return (
+    <div className="admin-shell auth-shell">
+      <section className="auth-card">
+        <p className="section-kicker">Admin protegido</p>
+        <h1>Acceso al panel</h1>
+        <p className="auth-help">
+          Ingresa usuario y contrasena para editar precios, textos e imagenes del menu.
+        </p>
+
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <Field label="Usuario" value={username} onChange={setUsername} />
+          <Field label="Contrasena" value={password} onChange={setPassword} type="password" />
+
+          {error ? <p className="auth-error">{error}</p> : null}
+
+          <button type="submit" className="admin-button primary auth-submit" disabled={loading}>
+            {loading ? 'Entrando...' : 'Entrar al admin'}
+          </button>
+        </form>
+      </section>
+    </div>
+  )
 }
 
 function PublicPage({ content }: { content: MenuContent }) {
@@ -203,9 +320,11 @@ function ProductRow({ item }: { item: MenuItem }) {
 function AdminPage({
   content,
   onContentChange,
+  onLogout,
 }: {
   content: MenuContent
   onContentChange: (content: MenuContent) => void
+  onLogout: () => void
 }) {
   const [draft, setDraft] = useState<MenuContent>(() => cloneValue(content))
   const [status, setStatus] = useState('Panel listo para editar.')
@@ -368,6 +487,19 @@ function AdminPage({
     }
   }
 
+  async function handleLogout() {
+    try {
+      await fetch('/api/admin-logout', {
+        method: 'POST',
+        credentials: 'include',
+      })
+    } catch {
+      // Ignored on purpose. We still return to login screen locally.
+    }
+
+    onLogout()
+  }
+
   return (
     <div className="admin-shell">
       <header className="admin-header">
@@ -387,6 +519,9 @@ function AdminPage({
           <a className="secondary-cta" href="/">
             Ver sitio
           </a>
+          <button type="button" className="admin-button" onClick={handleLogout}>
+            Salir
+          </button>
         </div>
       </header>
 
@@ -673,11 +808,13 @@ function Field({
   value,
   onChange,
   multiline = false,
+  type = 'text',
 }: {
   label: string
   value: string
   onChange: (value: string) => void
   multiline?: boolean
+  type?: string
 }) {
   return (
     <label className="field">
@@ -685,7 +822,7 @@ function Field({
       {multiline ? (
         <textarea value={value} onChange={(event) => onChange(event.target.value)} rows={3} />
       ) : (
-        <input value={value} onChange={(event) => onChange(event.target.value)} />
+        <input type={type} value={value} onChange={(event) => onChange(event.target.value)} />
       )}
     </label>
   )
