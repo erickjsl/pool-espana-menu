@@ -486,10 +486,10 @@ function AdminPage({
     if (!file) return
 
     try {
-      setStatus(`Subiendo imagen del combo: ${file.name}...`)
+      setStatus(`Preparando imagen del combo: ${file.name}...`)
       const path = await uploadRemoteImage(file)
       updateCombo(index, 'image', path)
-      setStatus(`Imagen del combo lista. Ahora toca Guardar para todos.`)
+      setStatus('Imagen del combo lista. Ahora toca Guardar para todos.')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'No se pudo subir la imagen del combo.'
       setStatus(message)
@@ -503,10 +503,10 @@ function AdminPage({
     if (!file) return
 
     try {
-      setStatus(`Subiendo imagen del producto: ${file.name}...`)
+      setStatus(`Preparando imagen del producto: ${file.name}...`)
       const path = await uploadRemoteImage(file)
       updateSectionItem(sectionIndex, itemIndex, 'image', path)
-      setStatus(`Imagen del producto lista. Ahora toca Guardar para todos.`)
+      setStatus('Imagen del producto lista. Ahora toca Guardar para todos.')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'No se pudo subir la imagen del producto.'
       setStatus(message)
