@@ -228,7 +228,7 @@ export const defaultMenuContent: MenuContent = {
       description: 'Cocteles, jarras y combinados para disfrutar, brindar y jugar.',
       items: [
         {
-          name: 'Caipirina (vaso)',
+          name: 'Caipiriña (vaso)',
           description: 'Cachaca, lima, azucar y hielo.',
           price: '25.000 Gs',
           image: '/images/products/caipirina-vaso.jpeg',
@@ -288,7 +288,7 @@ export const defaultMenuContent: MenuContent = {
           image: '/images/products/sangria-jarra.jpeg',
         },
         {
-          name: 'Caipirina (jarra)',
+          name: 'Caipiriña (jarra)',
           description: 'Version grande para la mesa.',
           price: '60.000 Gs',
           image: '/images/products/caipirina-jarra.jpeg',
@@ -356,7 +356,7 @@ export const defaultMenuContent: MenuContent = {
           image: '/images/products/hamburguesa.jpeg',
         },
         {
-          name: 'Cheese Burger',
+          name: 'Chesse Burger',
           description:
             'Pan, carne, tomate, repollo, huevo, jamon, seleccion de quesos, panceta y papas fritas.',
           price: '45.000 Gs',
@@ -401,7 +401,7 @@ export const defaultMenuContent: MenuContent = {
           image: '/images/products/pizza-muzzarella.jpeg',
         },
         {
-          name: 'Pizza Catupiry con pollo',
+          name: 'Pizza Catupiry con Pollo',
           description: 'Salsa, queso, catupiry y pollo.',
           price: '70.000 Gs',
           image: '/images/products/pizza-catupiry-pollo.jpeg',
