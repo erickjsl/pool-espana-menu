@@ -228,7 +228,7 @@ export const defaultMenuContent: MenuContent = {
       description: 'Cocteles, jarras y combinados para disfrutar, brindar y jugar.',
       items: [
         {
-          name: 'Caipiriña (vaso)',
+          name: 'Caipiri\u00f1a (vaso)',
           description: 'Cachaca, lima, azucar y hielo.',
           price: '25.000 Gs',
           image: '/images/products/caipirina-vaso.jpeg',
@@ -288,7 +288,7 @@ export const defaultMenuContent: MenuContent = {
           image: '/images/products/sangria-jarra.jpeg',
         },
         {
-          name: 'Caipiriña (jarra)',
+          name: 'Caipiri\u00f1a (jarra)',
           description: 'Version grande para la mesa.',
           price: '60.000 Gs',
           image: '/images/products/caipirina-jarra.jpeg',

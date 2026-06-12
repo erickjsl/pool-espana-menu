@@ -1,7 +1,14 @@
 import { type ChangeEvent, type FormEvent, type ReactNode, useEffect, useMemo, useState } from 'react'
 import './App.css'
 import { type MenuContent, type MenuItem, type MenuSection, type PromoCard } from './data/menu'
-import { clearStoredContent, cloneDefaultContent, readStoredContent, saveStoredContent } from './lib/content'
+import {
+  clearStoredContent,
+  cloneContent,
+  cloneDefaultContent,
+  fetchRemoteContent,
+  readStoredContent,
+  saveRemoteContent,
+} from './lib/content'
 
 const quickLinks = [
   { label: 'Bebidas', href: '#menu' },
@@ -32,20 +39,52 @@ function App() {
     window.location.pathname.replace(/\/+$/, '') === '/admin'
 
   const [content, setContent] = useState<MenuContent>(() => readStoredContent())
+  const [contentStatus, setContentStatus] = useState<'idle' | 'loading' | 'error'>('idle')
+
+  useEffect(() => {
+    let active = true
+
+    async function syncContent() {
+      setContentStatus('loading')
+
+      try {
+        const remoteContent = await fetchRemoteContent()
+
+        if (!active) {
+          return
+        }
+
+        setContent(remoteContent)
+        setContentStatus('idle')
+      } catch {
+        if (active) {
+          setContentStatus('error')
+        }
+      }
+    }
+
+    void syncContent()
+
+    return () => {
+      active = false
+    }
+  }, [])
 
   if (isAdminRoute) {
-    return <AdminAccess content={content} onContentChange={setContent} />
+    return <AdminAccess content={content} onContentChange={setContent} contentStatus={contentStatus} />
   }
 
-  return <PublicPage content={content} />
+  return <PublicPage content={content} contentStatus={contentStatus} />
 }
 
 function AdminAccess({
   content,
   onContentChange,
+  contentStatus,
 }: {
   content: MenuContent
   onContentChange: (content: MenuContent) => void
+  contentStatus: 'idle' | 'loading' | 'error'
 }) {
   const [status, setStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading')
 
@@ -94,7 +133,17 @@ function AdminAccess({
     return <AdminLogin onSuccess={() => setStatus('authenticated')} />
   }
 
-  return <AdminPage content={content} onContentChange={onContentChange} onLogout={() => setStatus('unauthenticated')} />
+  const adminContentKey = JSON.stringify(content)
+
+  return (
+    <AdminPage
+      key={adminContentKey}
+      content={content}
+      onContentChange={onContentChange}
+      onLogout={() => setStatus('unauthenticated')}
+      contentStatus={contentStatus}
+    />
+  )
 }
 
 function AdminLogin({ onSuccess }: { onSuccess: () => void }) {
@@ -157,7 +206,13 @@ function AdminLogin({ onSuccess }: { onSuccess: () => void }) {
   )
 }
 
-function PublicPage({ content }: { content: MenuContent }) {
+function PublicPage({
+  content,
+  contentStatus,
+}: {
+  content: MenuContent
+  contentStatus: 'idle' | 'loading' | 'error'
+}) {
   const { siteData, comboCards, menuSections } = content
   const bebidasSections = menuSections.filter((section) =>
     ['chopp', 'cervezas', 'gaseosas', 'whisky'].includes(section.id),
@@ -198,6 +253,12 @@ function PublicPage({ content }: { content: MenuContent }) {
       </nav>
 
       <main className="menu-main">
+        {contentStatus === 'error' ? (
+          <div className="sync-banner">
+            No se pudo actualizar el menu central. Se muestra la ultima version disponible.
+          </div>
+        ) : null}
+
         <section id="menu" className="menu-block">
           <div className="block-heading">
             <div>
@@ -321,15 +382,18 @@ function AdminPage({
   content,
   onContentChange,
   onLogout,
+  contentStatus,
 }: {
   content: MenuContent
   onContentChange: (content: MenuContent) => void
   onLogout: () => void
+  contentStatus: 'idle' | 'loading' | 'error'
 }) {
-  const [draft, setDraft] = useState<MenuContent>(() => cloneValue(content))
+  const [draft, setDraft] = useState<MenuContent>(() => cloneContent(content))
   const [status, setStatus] = useState('Panel listo para editar.')
   const [jsonMode, setJsonMode] = useState(false)
   const [editorValue, setEditorValue] = useState(() => JSON.stringify(content, null, 2))
+  const [isSaving, setIsSaving] = useState(false)
 
   const stats = useMemo(() => {
     const itemsCount = draft.menuSections.reduce((total, section) => total + section.items.length, 0)
@@ -434,10 +498,21 @@ function AdminPage({
     event.target.value = ''
   }
 
-  function handleSave() {
-    saveStoredContent(draft)
-    onContentChange(draft)
-    setStatus('Cambios guardados en este navegador.')
+  async function handleSave() {
+    setIsSaving(true)
+
+    try {
+      const savedContent = await saveRemoteContent(draft)
+      onContentChange(savedContent)
+      setDraft(cloneContent(savedContent))
+      setEditorValue(JSON.stringify(savedContent, null, 2))
+      setStatus('Cambios guardados para todos los dispositivos.')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'No se pudo guardar el contenido central.'
+      setStatus(message)
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   function handleReset() {
@@ -446,7 +521,7 @@ function AdminPage({
     setDraft(resetContent)
     onContentChange(resetContent)
     setEditorValue(JSON.stringify(resetContent, null, 2))
-    setStatus('Contenido restaurado al original del proyecto.')
+    setStatus('Contenido restaurado localmente. Guarda para publicarlo a todos.')
   }
 
   function handleDownload() {
@@ -513,8 +588,8 @@ function AdminPage({
         </div>
 
         <div className="admin-header-actions">
-          <button type="button" className="admin-button primary" onClick={handleSave}>
-            Guardar cambios
+          <button type="button" className="admin-button primary" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? 'Guardando...' : 'Guardar cambios'}
           </button>
           <a className="secondary-cta" href="/">
             Ver sitio
@@ -535,9 +610,15 @@ function AdminPage({
       </section>
 
       <section className="admin-panel">
+        {contentStatus === 'error' ? (
+          <p className="admin-status warning-status">
+            No se pudo refrescar el contenido central. Editas la ultima copia disponible.
+          </p>
+        ) : null}
+
         <div className="admin-toolbar">
-          <button type="button" className="admin-button primary" onClick={handleSave}>
-            Guardar en navegador
+          <button type="button" className="admin-button primary" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? 'Guardando...' : 'Guardar para todos'}
           </button>
           <button type="button" className="admin-button" onClick={handleDownload}>
             Descargar respaldo
@@ -826,10 +907,6 @@ function Field({
       )}
     </label>
   )
-}
-
-function cloneValue<T>(value: T) {
-  return JSON.parse(JSON.stringify(value)) as T
 }
 
 function fileToBase64(file: File) {
