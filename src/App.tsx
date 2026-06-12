@@ -895,7 +895,7 @@ function ImageUploadField({
   image: string
   onChange: (event: ChangeEvent<HTMLInputElement>) => void
 }) {
-  const hasPreparedImage = image.startsWith('data:image/')
+  const hasPreparedImage = Boolean(image)
 
   return (
     <label className="upload-box">
@@ -904,7 +904,7 @@ function ImageUploadField({
       <input type="file" accept="image/*" onChange={onChange} />
       <span className={hasPreparedImage ? 'upload-success' : undefined}>
         {hasPreparedImage
-          ? 'Imagen cargada. Ahora toca Guardar para todos.'
+          ? 'Imagen configurada. Si cambiaste la foto, guarda para todos.'
           : 'La vista previa cambia al elegir el archivo.'}
       </span>
     </label>
