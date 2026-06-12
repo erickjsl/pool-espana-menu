@@ -82,3 +82,39 @@ export async function saveRemoteContent(content: MenuContent) {
   saveStoredContent(payload.content)
   return payload.content
 }
+
+export async function uploadRemoteImage(file: File) {
+  const dataUrl = await fileToDataUrl(file)
+  const response = await fetch('/api/upload-image', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      fileName: file.name,
+      mimeType: file.type,
+      dataUrl,
+    }),
+  })
+
+  const payload = (await response.json().catch(() => null)) as
+    | {
+        path?: string
+        message?: string
+      }
+    | null
+
+  if (!response.ok || !payload?.path) {
+    throw new Error(payload?.message ?? 'No se pudo subir la imagen.')
+  }
+
+  return payload.path
+}
+
+function fileToDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result))
+    reader.onerror = () => reject(new Error('No se pudo leer la imagen'))
+    reader.readAsDataURL(file)
+  })
+}

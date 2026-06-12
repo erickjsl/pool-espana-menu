@@ -97,6 +97,33 @@ export async function writeMenuContent(content) {
   return content
 }
 
+export async function uploadRepositoryFile({ filePath, content, message }) {
+  const { token, repo, branch } = getStorageConfig()
+
+  if (!token) {
+    throw new Error('Falta configurar MENU_CONTENT_GITHUB_TOKEN en Vercel.')
+  }
+
+  const putResponse = await githubRequest(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      message,
+      content,
+      branch,
+    }),
+  })
+
+  if (!putResponse.ok) {
+    const payload = await putResponse.json().catch(() => null)
+    throw new Error(payload?.message || 'No se pudo subir la imagen.')
+  }
+
+  return await putResponse.json()
+}
+
 export function ensureAuthorized(req) {
   if (!isAuthorized(req)) {
     const error = new Error('No autorizado.')

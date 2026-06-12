@@ -8,6 +8,7 @@ import {
   fetchRemoteContent,
   readStoredContent,
   saveRemoteContent,
+  uploadRemoteImage,
 } from './lib/content'
 
 const quickLinks = [
@@ -483,18 +484,20 @@ function AdminPage({
   async function updateComboImageFile(index: number, event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
     if (!file) return
-    const base64 = await fileToBase64(file)
-    updateCombo(index, 'image', base64)
-    setStatus(`Imagen del combo cargada: ${file.name}`)
+    setStatus(`Subiendo imagen del combo: ${file.name}...`)
+    const path = await uploadRemoteImage(file)
+    updateCombo(index, 'image', path)
+    setStatus(`Imagen del combo lista: ${file.name}`)
     event.target.value = ''
   }
 
   async function updateItemImageFile(sectionIndex: number, itemIndex: number, event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
     if (!file) return
-    const base64 = await fileToBase64(file)
-    updateSectionItem(sectionIndex, itemIndex, 'image', base64)
-    setStatus(`Imagen del producto cargada: ${file.name}`)
+    setStatus(`Subiendo imagen del producto: ${file.name}...`)
+    const path = await uploadRemoteImage(file)
+    updateSectionItem(sectionIndex, itemIndex, 'image', path)
+    setStatus(`Imagen del producto lista: ${file.name}`)
     event.target.value = ''
   }
 
@@ -907,15 +910,6 @@ function Field({
       )}
     </label>
   )
-}
-
-function fileToBase64(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(String(reader.result))
-    reader.onerror = () => reject(new Error('No se pudo leer el archivo'))
-    reader.readAsDataURL(file)
-  })
 }
 
 export default App
