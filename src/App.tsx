@@ -234,32 +234,50 @@ function PublicPage({
 
   useEffect(() => {
     const sections = quickLinks
-      .map((link) => document.querySelector(link.href))
-      .filter((section): section is HTMLElement => section instanceof HTMLElement)
+      .map((link) => {
+        const id = link.href.slice(1)
+        const element = document.getElementById(id)
+
+        return element ? { href: link.href, element } : null
+      })
+      .filter((section): section is { href: string; element: HTMLElement } => section !== null)
 
     if (!sections.length) {
       return
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visibleEntry = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+    const navElement = document.querySelector('.category-nav')
 
-        if (visibleEntry?.target.id) {
-          setActiveCategory(`#${visibleEntry.target.id}`)
+    const syncActiveCategory = () => {
+      const navHeight = navElement instanceof HTMLElement ? navElement.offsetHeight : 0
+      const activationLine = navHeight + 24
+      const firstSectionTop = sections[0].element.getBoundingClientRect().top
+
+      if (firstSectionTop > activationLine) {
+        setActiveCategory(sections[0].href)
+        return
+      }
+
+      let nextActiveCategory = sections[0].href
+
+      for (const section of sections) {
+        if (section.element.getBoundingClientRect().top <= activationLine) {
+          nextActiveCategory = section.href
         }
-      },
-      {
-        rootMargin: '-25% 0px -58% 0px',
-        threshold: [0.05, 0.25, 0.5],
-      },
-    )
+      }
 
-    sections.forEach((section) => observer.observe(section))
+      setActiveCategory(nextActiveCategory)
+    }
 
-    return () => observer.disconnect()
+    syncActiveCategory()
+
+    window.addEventListener('scroll', syncActiveCategory, { passive: true })
+    window.addEventListener('resize', syncActiveCategory)
+
+    return () => {
+      window.removeEventListener('scroll', syncActiveCategory)
+      window.removeEventListener('resize', syncActiveCategory)
+    }
   }, [])
 
   return (
