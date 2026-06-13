@@ -54,23 +54,23 @@ export type MenuContent = {
 
 export const defaultMenuContent: MenuContent = {
   siteData: {
-    businessName: 'Pool Espana',
-    displayName: 'POOL ESPANA',
-    city: 'Asuncion, Paraguay',
-    tagline: 'Bar, pool y menu digital listo para QR',
+    businessName: 'Pool España',
+    displayName: 'POOL ESPAÑA',
+    city: 'Asunción, Paraguay',
+    tagline: 'Bar, pool y menú digital listo para QR',
     whatsappNumber: '595981962685',
     whatsappDisplay: '981 962 685',
     whatsappUrl:
-      'https://wa.me/595981962685?text=Hola%20Pool%20Espana,%20quiero%20reservar%20una%20mesa',
+      'https://wa.me/595981962685?text=Hola%20Pool%20Espa%C3%B1a,%20quiero%20reservar%20una%20mesa',
     hero: {
       eyebrow: 'Pool, futbol, tragos y buena energia',
-      title: 'El menu digital de Pool Espana ya esta listo para recibir reservas por QR.',
+      title: 'El menú digital de Pool España ya está listo para recibir reservas por QR.',
       description:
-        'Una experiencia moderna, rapida y pensada para celular. Todo en espanol, con identidad nocturna, promos destacadas y secciones faciles de actualizar.',
+        'Una experiencia moderna, rápida y pensada para celular. Todo en español, con identidad nocturna, promociones destacadas y secciones fáciles de actualizar.',
       stats: [
         'Reservas por WhatsApp',
-        'Promos destacadas',
-        'Diseno optimizado para Vercel',
+        'Promociones destacadas',
+        'Diseño optimizado para Vercel',
       ],
     },
     serviceHighlights: [
@@ -139,7 +139,7 @@ export const defaultMenuContent: MenuContent = {
     },
     {
       title: '3 Heineken 3/4',
-      description: 'Opcion clasica para compartir.',
+      description: 'Opción clásica para compartir.',
       price: '70.000 Gs',
       image: '/images/products/combo-heineken-3-4.jpeg',
     },
@@ -201,7 +201,7 @@ export const defaultMenuContent: MenuContent = {
       id: 'cervezas',
       eyebrow: 'Botellas',
       title: 'Cervezas',
-      description: 'Selecciones individuales segun la lista entregada.',
+      description: 'Selecciones individuales según la lista entregada.',
       items: [
         { name: 'Patagonia 740 ml', price: '25.000 Gs', image: '/images/products/patagonia-740.jpeg' },
         { name: 'Stella Artois 740 ml', price: '25.000 Gs', image: '/images/products/stella-artois-740.jpeg' },
@@ -253,7 +253,7 @@ export const defaultMenuContent: MenuContent = {
         },
         {
           name: 'Whisky + shot',
-          description: 'Shot a eleccion.',
+          description: 'Shot a elección.',
           price: '25.000 Gs',
           image: '/images/products/whisky-shot.jpeg',
         },
@@ -265,7 +265,7 @@ export const defaultMenuContent: MenuContent = {
         },
         {
           name: 'Gin Tonic (vaso)',
-          description: 'Gin, tonica y toque de lima.',
+          description: 'Gin, tónica y toque de lima.',
           price: '25.000 Gs',
           image: '/images/products/gin-tonic.jpeg',
         },
@@ -289,7 +289,7 @@ export const defaultMenuContent: MenuContent = {
         },
         {
           name: 'Caipiri\u00f1a (jarra)',
-          description: 'Version grande para la mesa.',
+          description: 'Versión grande para la mesa.',
           price: '60.000 Gs',
           image: '/images/products/caipirina-jarra.jpeg',
         },
@@ -325,9 +325,9 @@ export const defaultMenuContent: MenuContent = {
         { name: 'Fanta naranja 500 ml', price: '10.000 Gs', image: '/images/products/fanta-naranja.jpeg' },
         { name: 'Sprite 500 ml', price: '10.000 Gs', image: '/images/products/sprite.jpeg' },
         { name: 'Fanta uva 500 ml', price: '10.000 Gs', image: '/images/products/fanta-uva.jpeg' },
-        { name: 'Fanta guarana 500 ml', price: '10.000 Gs', image: '/images/products/fanta-guarana.jpeg' },
+        { name: 'Fanta guaraná 500 ml', price: '10.000 Gs', image: '/images/products/fanta-guarana.jpeg' },
         { name: 'Agua Seltz 500 ml', price: '8.000 Gs', image: '/images/products/agua-seltz.jpeg' },
-        { name: 'Agua tonica 500 ml', price: '20.000 Gs', image: '/images/products/agua-tonica.jpeg' },
+        { name: 'Agua tónica 500 ml', price: '20.000 Gs', image: '/images/products/agua-tonica.jpeg' },
       ],
     },
     {
@@ -339,26 +339,26 @@ export const defaultMenuContent: MenuContent = {
         {
           name: 'Lomito Pool',
           description:
-            'Pan, carne, tomate, repollo, huevo, jamon, queso, panceta y papas fritas.',
+            'Pan, carne, tomate, repollo, huevo, jamón, queso, panceta y papas fritas.',
           price: '50.000 Gs',
           image: '/images/products/lomito-pool.jpeg',
         },
         {
           name: 'Lomito Junior',
-          description: 'Pan, carne, tomate, repollo, huevo, jamon y queso.',
+          description: 'Pan, carne, tomate, repollo, huevo, jamón y queso.',
           price: '35.000 Gs',
           image: '/images/products/lomito-junior.jpeg',
         },
         {
           name: 'Hamburguesa',
-          description: 'Pan, carne, tomate, repollo, huevo, jamon y queso.',
+          description: 'Pan, carne, tomate, repollo, huevo, jamón y queso.',
           price: '30.000 Gs',
           image: '/images/products/hamburguesa.jpeg',
         },
         {
           name: 'Chesse Burger',
           description:
-            'Pan, carne, tomate, repollo, huevo, jamon, seleccion de quesos, panceta y papas fritas.',
+            'Pan, carne, tomate, repollo, huevo, jamón, selección de quesos, panceta y papas fritas.',
           price: '45.000 Gs',
           image: '/images/products/cheese-burger.jpeg',
         },
@@ -384,7 +384,7 @@ export const defaultMenuContent: MenuContent = {
         },
         {
           name: 'Pizza Napolitana',
-          description: 'Salsa, queso, jamon y tomate.',
+          description: 'Salsa, queso, jamón y tomate.',
           price: '70.000 Gs',
           image: '/images/products/pizza-napolitana.jpeg',
         },
@@ -413,7 +413,7 @@ export const defaultMenuContent: MenuContent = {
   galleryImages: [
     {
       src: '/images/promo-copa.jpeg',
-      alt: 'Poster promocional de Pool Espana con tematica futbolera.',
+      alt: 'Póster promocional de Pool España con temática futbolera.',
     },
     {
       src: '/images/combos-ficha.jpeg',
@@ -421,15 +421,15 @@ export const defaultMenuContent: MenuContent = {
     },
     {
       src: '/images/menu-fast-food.jpeg',
-      alt: 'Poster de menu fast food de Pool Espana.',
+      alt: 'Póster del menú fast food de Pool España.',
     },
     {
       src: '/images/tragos-poster.jpeg',
-      alt: 'Poster de tragos de Pool Espana.',
+      alt: 'Póster de tragos de Pool España.',
     },
     {
       src: '/images/menu-bebidas.jpeg',
-      alt: 'Poster de bebidas y cervezas de Pool Espana.',
+      alt: 'Póster de bebidas y cervezas de Pool España.',
     },
   ],
 }

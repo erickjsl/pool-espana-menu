@@ -50,7 +50,7 @@ export function AdminAccess({
         <div className="auth-card">
           <p className="section-kicker">Admin protegido</p>
           <h1>Verificando acceso</h1>
-          <p className="auth-help">Un momento mientras validamos la sesion.</p>
+          <p className="auth-help">Un momento mientras validamos la sesión.</p>
         </div>
       </div>
     )
@@ -65,8 +65,8 @@ export function AdminAccess({
       <div className="admin-shell auth-shell">
         <div className="auth-card">
           <p className="section-kicker">Admin protegido</p>
-          <h1>Cargando menu central</h1>
-          <p className="auth-help">Estamos preparando la ultima version antes de editar.</p>
+          <h1>Cargando menú central</h1>
+          <p className="auth-help">Estamos preparando la última versión antes de editar.</p>
         </div>
       </div>
     )

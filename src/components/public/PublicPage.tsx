@@ -27,7 +27,7 @@ export function PublicPage({ content, contentStatus }: { content: MenuContent; c
         <AppImage
           className="hero-poster"
           src="/images/promo-copa.jpeg"
-          alt="Ambiente y promocion futbolera de Pool Espana."
+          alt="Ambiente y promoción futbolera de Pool España."
           priority
           width={1600}
           height={900}
@@ -39,7 +39,7 @@ export function PublicPage({ content, contentStatus }: { content: MenuContent; c
             <AppImage
               className="brand-logo"
               src="/images/logo.jpeg"
-              alt="Logo Pool Espana"
+              alt="Logo Pool España"
               priority
               width={260}
               height={260}
@@ -47,19 +47,19 @@ export function PublicPage({ content, contentStatus }: { content: MenuContent; c
             />
             <div>
               <p className="eyebrow">{siteData.displayName}</p>
-              <span className="brand-meta">Bar | Pool | Asuncion</span>
+              <span className="brand-meta">Bar | Pool | Asunción</span>
             </div>
           </div>
 
           <div className="hero-copy">
-            <p className="hero-slogan">Disfruta | Brinda | Juga</p>
-            <h1>Menu</h1>
+            <p className="hero-slogan">Disfruta | Brinda | Juega</p>
+            <h1>Menú</h1>
             <p className="hero-subtitle">Carta digital de bebidas, tragos, combos y comidas para disfrutar la noche.</p>
           </div>
         </div>
       </header>
 
-      <nav className="category-nav" aria-label="Navegacion de categorias">
+      <nav className="category-nav" aria-label="Navegación de categorías">
         {quickLinks.map((link) => (
           <a
             key={link.href}
@@ -76,7 +76,7 @@ export function PublicPage({ content, contentStatus }: { content: MenuContent; c
       <main className="menu-main">
         {contentStatus === 'error' ? (
           <div className="sync-banner">
-            No se pudo actualizar el menu central. Se muestra la ultima version disponible.
+            No se pudo actualizar el menú central. Se muestra la última versión disponible.
           </div>
         ) : null}
 
@@ -183,7 +183,7 @@ export function PublicPage({ content, contentStatus }: { content: MenuContent; c
 
       <footer className="simple-footer">
         <p>{siteData.displayName}</p>
-        <span>Bar | Pool | Asuncion</span>
+        <span>Bar | Pool | Asunción</span>
       </footer>
     </div>
   )

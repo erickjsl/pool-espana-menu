@@ -22,14 +22,14 @@ export function AdminLogin({ onSuccess }: { onSuccess: () => void }) {
 
       if (!response.ok) {
         const payload = (await response.json().catch(() => null)) as { message?: string } | null
-        setError(payload?.message ?? 'Usuario o contrasena incorrectos.')
+        setError(payload?.message ?? 'Usuario o contraseña incorrectos.')
         setLoading(false)
         return
       }
 
       onSuccess()
     } catch {
-      setError('No se pudo iniciar sesion. Intenta de nuevo.')
+      setError('No se pudo iniciar sesión. Intenta de nuevo.')
       setLoading(false)
       return
     }
@@ -43,12 +43,12 @@ export function AdminLogin({ onSuccess }: { onSuccess: () => void }) {
         <p className="section-kicker">Admin protegido</p>
         <h1>Acceso al panel</h1>
         <p className="auth-help">
-          Ingresa usuario y contrasena para editar precios, textos e imagenes del menu.
+          Ingresa usuario y contraseña para editar precios, textos e imágenes del menú.
         </p>
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <Field label="Usuario" value={username} onChange={setUsername} />
-          <Field label="Contrasena" value={password} onChange={setPassword} type="password" />
+          <Field label="Contraseña" value={password} onChange={setPassword} type="password" />
 
           {error ? <p className="auth-error">{error}</p> : null}
 

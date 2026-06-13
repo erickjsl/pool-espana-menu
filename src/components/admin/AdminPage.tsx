@@ -13,7 +13,7 @@ import { Field } from '../shared/Field'
 
 const emptyPromo = (): PromoCard => ({
   title: 'Nuevo combo',
-  description: 'Descripcion corta.',
+  description: 'Descripción breve.',
   price: '0 Gs',
   badge: '',
   image: '',
@@ -172,7 +172,7 @@ export function AdminPage({
       return { ...current, menuSections }
     })
 
-    setStatus('Item duplicado. Ajusta nome, preco ou imagem se necessario.')
+    setStatus('Ítem duplicado. Ajusta nombre, precio o imagen si es necesario.')
   }
 
   function removeSectionItem(sectionIndex: number, itemIndex: number) {
@@ -203,7 +203,7 @@ export function AdminPage({
 
   function handleItemDragStart(sectionIndex: number, itemIndex: number) {
     setDraggedItem({ sectionIndex, itemIndex })
-    setStatus('Arrastrando item. Suelta sobre otro item de la misma categoria para reordenar.')
+    setStatus('Arrastrando ítem. Suéltalo sobre otro ítem de la misma categoría para reordenarlo.')
   }
 
   function handleItemDragOver(event: ReactDragEvent<HTMLDivElement>) {
@@ -218,13 +218,13 @@ export function AdminPage({
 
     if (draggedItem.sectionIndex !== sectionIndex) {
       setDraggedItem(null)
-      setStatus('Por ahora el arrastre funciona dentro de la misma categoria.')
+      setStatus('Por ahora, el arrastre funciona dentro de la misma categoría.')
       return
     }
 
     moveSectionItem(sectionIndex, draggedItem.itemIndex, itemIndex)
     setDraggedItem(null)
-    setStatus('Orden del item actualizado en la categoria.')
+    setStatus('Orden del ítem actualizado en la categoría.')
   }
 
   function handleItemDragEnd() {
@@ -292,7 +292,7 @@ export function AdminPage({
 
   function handleSectionDragStart(sectionIndex: number) {
     setDraggedSection({ sectionIndex })
-    setStatus('Arrastrando categoria. Suelta sobre otra categoria para reordenar.')
+    setStatus('Arrastrando categoría. Suéltala sobre otra categoría para reordenarla.')
   }
 
   function handleSectionDrop(sectionIndex: number) {
@@ -302,7 +302,7 @@ export function AdminPage({
 
     moveSection(draggedSection.sectionIndex, sectionIndex)
     setDraggedSection(null)
-    setStatus('Orden de categorias actualizado.')
+    setStatus('Orden de categorías actualizado.')
   }
 
   function handleSectionDragEnd() {
@@ -317,7 +317,7 @@ export function AdminPage({
       setStatus(`Preparando imagen del combo: ${file.name}...`)
       const path = await uploadRemoteImage(file)
       updateCombo(index, 'image', path)
-      setStatus('Imagen del combo optimizada y lista. Ahora toca Guardar para todos.')
+      setStatus('Imagen del combo optimizada y lista. Ahora solo falta guardar para todos.')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'No se pudo subir la imagen del combo.'
       setStatus(message)
@@ -334,7 +334,7 @@ export function AdminPage({
       setStatus(`Preparando imagen del producto: ${file.name}...`)
       const path = await uploadRemoteImage(file)
       updateSectionItem(sectionIndex, itemIndex, 'image', path)
-      setStatus('Imagen del producto optimizada y lista. Ahora toca Guardar para todos.')
+      setStatus('Imagen del producto optimizada y lista. Ahora solo falta guardar para todos.')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'No se pudo subir la imagen del producto.'
       setStatus(message)
@@ -364,7 +364,7 @@ export function AdminPage({
 
   function handleReset() {
     const confirmed = window.confirm(
-      'Restaurar original vai trocar o rascunho atual pelo conteudo padrao. Voce podera desfazer logo em seguida. Continuar?',
+      'Restaurar el original reemplazará el borrador actual por el contenido predeterminado. Podrás deshacerlo enseguida. ¿Deseas continuar?',
     )
 
     if (!confirmed) {
@@ -377,7 +377,7 @@ export function AdminPage({
     setDraft(resetContent)
     onContentChange(resetContent)
     setEditorValue(JSON.stringify(resetContent, null, 2))
-    setStatus('Contenido original cargado localmente. Si fue por error, usa Desfazer restauracion antes de guardar.')
+    setStatus('Contenido original cargado localmente. Si fue por error, usa Deshacer restauración antes de guardar.')
   }
 
   function handleUndoReset() {
@@ -389,7 +389,7 @@ export function AdminPage({
     onContentChange(lastDraftBeforeReset)
     setEditorValue(JSON.stringify(lastDraftBeforeReset, null, 2))
     setLastDraftBeforeReset(null)
-    setStatus('Rascunho anterior restaurado no painel.')
+    setStatus('Borrador anterior restaurado en el panel.')
   }
 
   function handleDownload() {
@@ -449,10 +449,10 @@ export function AdminPage({
     <div className="admin-shell">
       <header className="admin-header">
         <div>
-          <p className="section-kicker">Admin facil</p>
-          <h1>Editar menu sin experiencia</h1>
+          <p className="section-kicker">Admin fácil</p>
+          <h1>Editar menú sin experiencia</h1>
           <p className="admin-note">
-            Cambia textos, precios e imagenes con formularios simples. Cada producto ya puede
+            Cambia textos, precios e imágenes con formularios simples. Cada producto ya puede
             tener su propia foto.
           </p>
         </div>
@@ -482,7 +482,7 @@ export function AdminPage({
       <section className="admin-panel">
         {contentStatus === 'error' ? (
           <p className="admin-status warning-status">
-            No se pudo refrescar el contenido central. Editas la ultima copia disponible.
+            No se pudo refrescar el contenido central. Estás editando la última copia disponible.
           </p>
         ) : null}
 
@@ -502,7 +502,7 @@ export function AdminPage({
           </button>
           {lastDraftBeforeReset ? (
             <button type="button" className="admin-button" onClick={handleUndoReset}>
-              Desfazer restauracion
+              Deshacer restauración
             </button>
           ) : null}
         </div>
@@ -565,8 +565,8 @@ export function AdminPage({
           </AdminCard>
 
           <AdminCard
-            title="Categorias del menu"
-            description="Busca, filtra, duplica y reordena items sin tocar el JSON."
+            title="Categorías del menú"
+            description="Busca, filtra, duplica y reordena ítems sin tocar el JSON."
           >
             <div className="admin-filter-bar">
               <Field
@@ -578,9 +578,9 @@ export function AdminPage({
               />
 
               <label className="field">
-                <span>Filtrar categoria</span>
+                <span>Filtrar categoría</span>
                 <select value={sectionFilter} onChange={(event) => setSectionFilter(event.target.value)}>
-                  <option value="all">Todas las categorias</option>
+                  <option value="all">Todas las categorías</option>
                   {draft.menuSections.map((section) => (
                     <option key={section.id} value={section.id}>
                       {section.title}
@@ -591,8 +591,8 @@ export function AdminPage({
             </div>
 
             <p className="admin-result-summary">
-              {filteredSections.length} {filteredSections.length === 1 ? 'categoria visible' : 'categorias visibles'} ·{' '}
-              {visibleItemsCount} {visibleItemsCount === 1 ? 'item encontrado' : 'items encontrados'}
+              {filteredSections.length} {filteredSections.length === 1 ? 'categoría visible' : 'categorías visibles'} ·{' '}
+              {visibleItemsCount} {visibleItemsCount === 1 ? 'ítem encontrado' : 'ítems encontrados'}
             </p>
 
             <div className="stack-list">
@@ -610,7 +610,7 @@ export function AdminPage({
                     <div>
                       <h3>{section.title}</h3>
                       <p>
-                        {section.id} · {section.items.length} {section.items.length === 1 ? 'item' : 'itens'}
+                        {section.id} · {section.items.length} {section.items.length === 1 ? 'ítem' : 'ítems'}
                       </p>
                     </div>
                     <div className="item-actions">
@@ -619,9 +619,9 @@ export function AdminPage({
                         className="subtle-action"
                         onClick={() => moveSection(sectionIndex, Math.max(0, sectionIndex - 1))}
                         disabled={sectionIndex === 0}
-                        aria-label={`Mover categoria ${section.title} para cima`}
+                        aria-label={`Mover categoría ${section.title} hacia arriba`}
                       >
-                        Subir categoria
+                        Subir categoría
                       </button>
                       <button
                         type="button"
@@ -630,16 +630,16 @@ export function AdminPage({
                           moveSection(sectionIndex, Math.min(draft.menuSections.length - 1, sectionIndex + 1))
                         }
                         disabled={sectionIndex === draft.menuSections.length - 1}
-                        aria-label={`Mover categoria ${section.title} para baixo`}
+                        aria-label={`Mover categoría ${section.title} hacia abajo`}
                       >
-                        Bajar categoria
+                        Bajar categoría
                       </button>
                       <button
                         type="button"
                         className="subtle-action drag-handle"
-                        aria-label={`Arrastrar categoria ${section.title}`}
+                        aria-label={`Arrastrar categoría ${section.title}`}
                       >
-                        Arrastrar categoria
+                        Arrastrar categoría
                       </button>
                       <button
                         type="button"
@@ -653,19 +653,19 @@ export function AdminPage({
 
                   <div className="form-grid two-columns">
                     <Field
-                      label="Titulo"
+                      label="Título"
                       value={section.title}
                       onChange={(value) => updateSectionMeta(sectionIndex, 'title', value)}
                     />
                     <Field
-                      label="Subtitulo pequeno"
+                      label="Subtítulo pequeño"
                       value={section.eyebrow}
                       onChange={(value) => updateSectionMeta(sectionIndex, 'eyebrow', value)}
                     />
                   </div>
 
                   <Field
-                    label="Descripcion"
+                    label="Descripción"
                     value={section.description}
                     onChange={(value) => updateSectionMeta(sectionIndex, 'description', value)}
                     multiline
@@ -690,7 +690,7 @@ export function AdminPage({
                               className="subtle-action"
                               onClick={() => moveSectionItem(sectionIndex, itemIndex, Math.max(0, itemIndex - 1))}
                               disabled={itemIndex === 0}
-                              aria-label={`Mover ${item.name} para cima`}
+                              aria-label={`Mover ${item.name} hacia arriba`}
                             >
                               Subir
                             </button>
@@ -705,7 +705,7 @@ export function AdminPage({
                                 )
                               }
                               disabled={itemIndex === section.items.length - 1}
-                              aria-label={`Mover ${item.name} para baixo`}
+                              aria-label={`Mover ${item.name} hacia abajo`}
                             >
                               Bajar
                             </button>
@@ -759,7 +759,7 @@ export function AdminPage({
                             </div>
 
                             <Field
-                              label="Descripcion"
+                              label="Descripción"
                               value={item.description ?? ''}
                               onChange={(value) =>
                                 updateSectionItem(sectionIndex, itemIndex, 'description', value)
@@ -803,14 +803,14 @@ export function AdminPage({
             {filteredSections.length === 0 ? (
               <div className="empty-admin-state">
                 <strong>Sin resultados</strong>
-                <p>Ajusta la busca o cambia el filtro para volver a ver los items del menu.</p>
+                <p>Ajusta la búsqueda o cambia el filtro para volver a ver los ítems del menú.</p>
               </div>
             ) : null}
           </AdminCard>
 
           <details className="advanced-json">
             <summary>Modo avanzado JSON</summary>
-            <p>Solo usa esto si ya sabes lo que estas haciendo.</p>
+            <p>Solo usa esto si ya sabes lo que estás haciendo.</p>
             <div className="admin-toolbar compact-toolbar">
               <button type="button" className="admin-button" onClick={() => setJsonMode((current) => !current)}>
                 {jsonMode ? 'Ocultar JSON' : 'Mostrar JSON'}
@@ -825,7 +825,7 @@ export function AdminPage({
                 value={editorValue}
                 onChange={(event) => setEditorValue(event.target.value)}
                 spellCheck={false}
-                aria-label="Editor JSON del menu"
+                aria-label="Editor JSON del menú"
               />
             ) : null}
           </details>
@@ -883,7 +883,7 @@ function EditableComboCard({
             className="subtle-action"
             onClick={onMoveUp}
             disabled={disableMoveUp}
-            aria-label={`Mover ${title} para cima`}
+            aria-label={`Mover ${title} hacia arriba`}
           >
             Subir
           </button>
@@ -892,7 +892,7 @@ function EditableComboCard({
             className="subtle-action"
             onClick={onMoveDown}
             disabled={disableMoveDown}
-            aria-label={`Mover ${title} para baixo`}
+            aria-label={`Mover ${title} hacia abajo`}
           >
             Bajar
           </button>
@@ -912,12 +912,12 @@ function EditableComboCard({
 
         <div className="stack-list tight">
           <div className="form-grid two-columns">
-            <Field label="Titulo" value={combo.title} onChange={(value) => onFieldChange('title', value)} />
+            <Field label="Título" value={combo.title} onChange={(value) => onFieldChange('title', value)} />
             <Field label="Precio" value={combo.price} onChange={(value) => onFieldChange('price', value)} />
           </div>
 
           <Field
-            label="Descripcion"
+            label="Descripción"
             value={combo.description}
             onChange={(value) => onFieldChange('description', value)}
             multiline
@@ -951,7 +951,7 @@ function ImageUploadField({
       <span className={hasPreparedImage ? 'upload-success' : undefined}>
         {hasPreparedImage
           ? 'Imagen configurada y optimizada. Si cambiaste la foto, guarda para todos.'
-          : 'La vista previa cambia al elegir el archivo y se optimiza antes de guardar.'}
+          : 'La vista previa cambia al elegir el archivo y la imagen se optimiza antes de guardarla.'}
       </span>
     </label>
   )
