@@ -32,6 +32,14 @@ type DraggedItem = {
   itemIndex: number
 }
 
+type DraggedCombo = {
+  comboIndex: number
+}
+
+type DraggedSection = {
+  sectionIndex: number
+}
+
 export function AdminPage({
   content,
   onContentChange,
@@ -52,6 +60,8 @@ export function AdminPage({
   const [itemSearch, setItemSearch] = useState('')
   const [sectionFilter, setSectionFilter] = useState('all')
   const [draggedItem, setDraggedItem] = useState<DraggedItem | null>(null)
+  const [draggedCombo, setDraggedCombo] = useState<DraggedCombo | null>(null)
+  const [draggedSection, setDraggedSection] = useState<DraggedSection | null>(null)
 
   const stats = useMemo(() => {
     const itemsCount = draft.menuSections.reduce((total, section) => total + section.items.length, 0)
@@ -228,11 +238,75 @@ export function AdminPage({
     }))
   }
 
+  function moveCombo(fromIndex: number, toIndex: number) {
+    if (fromIndex === toIndex) {
+      return
+    }
+
+    updateDraft((current) => {
+      const comboCards = [...current.comboCards]
+      const [movedCombo] = comboCards.splice(fromIndex, 1)
+      comboCards.splice(toIndex, 0, movedCombo)
+      return { ...current, comboCards }
+    })
+  }
+
+  function handleComboDragStart(comboIndex: number) {
+    setDraggedCombo({ comboIndex })
+    setStatus('Arrastrando combo. Suelta sobre otro combo para reordenar.')
+  }
+
+  function handleComboDrop(comboIndex: number) {
+    if (!draggedCombo) {
+      return
+    }
+
+    moveCombo(draggedCombo.comboIndex, comboIndex)
+    setDraggedCombo(null)
+    setStatus('Orden de combos actualizado.')
+  }
+
+  function handleComboDragEnd() {
+    setDraggedCombo(null)
+  }
+
   function removeCombo(index: number) {
     updateDraft((current) => ({
       ...current,
       comboCards: current.comboCards.filter((_, itemIndex) => itemIndex !== index),
     }))
+  }
+
+  function moveSection(fromIndex: number, toIndex: number) {
+    if (fromIndex === toIndex) {
+      return
+    }
+
+    updateDraft((current) => {
+      const menuSections = [...current.menuSections]
+      const [movedSection] = menuSections.splice(fromIndex, 1)
+      menuSections.splice(toIndex, 0, movedSection)
+      return { ...current, menuSections }
+    })
+  }
+
+  function handleSectionDragStart(sectionIndex: number) {
+    setDraggedSection({ sectionIndex })
+    setStatus('Arrastrando categoria. Suelta sobre otra categoria para reordenar.')
+  }
+
+  function handleSectionDrop(sectionIndex: number) {
+    if (!draggedSection) {
+      return
+    }
+
+    moveSection(draggedSection.sectionIndex, sectionIndex)
+    setDraggedSection(null)
+    setStatus('Orden de categorias actualizado.')
+  }
+
+  function handleSectionDragEnd() {
+    setDraggedSection(null)
   }
 
   async function updateComboImageFile(index: number, event: ChangeEvent<HTMLInputElement>) {
@@ -470,9 +544,18 @@ export function AdminPage({
                   key={`combo-${index}`}
                   title={`Combo ${index + 1}`}
                   combo={combo}
+                  isDragging={draggedCombo?.comboIndex === index}
                   onFieldChange={(field, value) => updateCombo(index, field, value)}
+                  onMoveUp={() => moveCombo(index, Math.max(0, index - 1))}
+                  onMoveDown={() => moveCombo(index, Math.min(draft.comboCards.length - 1, index + 1))}
                   onRemove={() => removeCombo(index)}
                   onImageUpload={(event) => updateComboImageFile(index, event)}
+                  onDragStart={() => handleComboDragStart(index)}
+                  onDragOver={handleItemDragOver}
+                  onDrop={() => handleComboDrop(index)}
+                  onDragEnd={handleComboDragEnd}
+                  disableMoveUp={index === 0}
+                  disableMoveDown={index === draft.comboCards.length - 1}
                 />
               ))}
             </div>
@@ -514,7 +597,15 @@ export function AdminPage({
 
             <div className="stack-list">
               {filteredSections.map(({ section, sectionIndex, items }) => (
-                <div className="editor-card" key={section.id}>
+                <div
+                  className={`editor-card ${draggedSection?.sectionIndex === sectionIndex ? 'dragging' : ''}`}
+                  key={section.id}
+                  draggable
+                  onDragStart={() => handleSectionDragStart(sectionIndex)}
+                  onDragOver={handleItemDragOver}
+                  onDrop={() => handleSectionDrop(sectionIndex)}
+                  onDragEnd={handleSectionDragEnd}
+                >
                   <div className="editor-card-header">
                     <div>
                       <h3>{section.title}</h3>
@@ -522,13 +613,42 @@ export function AdminPage({
                         {section.id} · {section.items.length} {section.items.length === 1 ? 'item' : 'itens'}
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      className="admin-button compact-action"
-                      onClick={() => addSectionItem(sectionIndex)}
-                    >
-                      Agregar item
-                    </button>
+                    <div className="item-actions">
+                      <button
+                        type="button"
+                        className="subtle-action"
+                        onClick={() => moveSection(sectionIndex, Math.max(0, sectionIndex - 1))}
+                        disabled={sectionIndex === 0}
+                        aria-label={`Mover categoria ${section.title} para cima`}
+                      >
+                        Subir categoria
+                      </button>
+                      <button
+                        type="button"
+                        className="subtle-action"
+                        onClick={() =>
+                          moveSection(sectionIndex, Math.min(draft.menuSections.length - 1, sectionIndex + 1))
+                        }
+                        disabled={sectionIndex === draft.menuSections.length - 1}
+                        aria-label={`Mover categoria ${section.title} para baixo`}
+                      >
+                        Bajar categoria
+                      </button>
+                      <button
+                        type="button"
+                        className="subtle-action drag-handle"
+                        aria-label={`Arrastrar categoria ${section.title}`}
+                      >
+                        Arrastrar categoria
+                      </button>
+                      <button
+                        type="button"
+                        className="admin-button compact-action"
+                        onClick={() => addSectionItem(sectionIndex)}
+                      >
+                        Agregar item
+                      </button>
+                    </div>
                   </div>
 
                   <div className="form-grid two-columns">
@@ -718,23 +838,71 @@ export function AdminPage({
 function EditableComboCard({
   title,
   combo,
+  isDragging,
   onFieldChange,
+  onMoveUp,
+  onMoveDown,
   onRemove,
   onImageUpload,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onDragEnd,
+  disableMoveUp,
+  disableMoveDown,
 }: {
   title: string
   combo: PromoCard
+  isDragging: boolean
   onFieldChange: (field: keyof PromoCard, value: string) => void
+  onMoveUp: () => void
+  onMoveDown: () => void
   onRemove: () => void
   onImageUpload: (event: ChangeEvent<HTMLInputElement>) => void
+  onDragStart: () => void
+  onDragOver: (event: ReactDragEvent<HTMLDivElement>) => void
+  onDrop: () => void
+  onDragEnd: () => void
+  disableMoveUp: boolean
+  disableMoveDown: boolean
 }) {
   return (
-    <div className="editor-card">
+    <div
+      className={`editor-card ${isDragging ? 'dragging' : ''}`}
+      draggable
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
+    >
       <div className="editor-card-header">
         <strong>{title}</strong>
-        <button type="button" className="remove-link" onClick={onRemove}>
-          Eliminar
-        </button>
+        <div className="item-actions">
+          <button
+            type="button"
+            className="subtle-action"
+            onClick={onMoveUp}
+            disabled={disableMoveUp}
+            aria-label={`Mover ${title} para cima`}
+          >
+            Subir
+          </button>
+          <button
+            type="button"
+            className="subtle-action"
+            onClick={onMoveDown}
+            disabled={disableMoveDown}
+            aria-label={`Mover ${title} para baixo`}
+          >
+            Bajar
+          </button>
+          <button type="button" className="subtle-action drag-handle" aria-label={`Arrastrar ${title}`}>
+            Arrastrar
+          </button>
+          <button type="button" className="remove-link" onClick={onRemove} aria-label={`Eliminar ${title}`}>
+            Eliminar
+          </button>
+        </div>
       </div>
 
       <div className="item-admin-grid">
