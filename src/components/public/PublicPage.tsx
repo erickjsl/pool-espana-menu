@@ -51,8 +51,11 @@ export function PublicPage({ content, contentStatus }: { content: MenuContent; c
             </div>
           </div>
 
-          <p className="hero-slogan">Disfruta | Brinda | Juga</p>
-          <h1>Menu</h1>
+          <div className="hero-copy">
+            <p className="hero-slogan">Disfruta | Brinda | Juga</p>
+            <h1>Menu</h1>
+            <p className="hero-subtitle">Carta digital de bebidas, tragos, combos y comidas para disfrutar la noche.</p>
+          </div>
         </div>
       </header>
 
