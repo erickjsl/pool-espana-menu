@@ -148,7 +148,7 @@ export function PublicPage({ content, contentStatus }: { content: MenuContent; c
                   <h3>{combo.title}</h3>
                   <p>{combo.description}</p>
                 </div>
-                <strong>{combo.price}</strong>
+                <strong className="card-price">{combo.price}</strong>
               </article>
             ))}
           </div>

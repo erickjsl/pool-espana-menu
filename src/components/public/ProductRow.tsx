@@ -22,7 +22,7 @@ export function ProductRow({ item }: { item: MenuItem }) {
         </div>
         {item.description ? <p>{item.description}</p> : null}
       </div>
-      <strong>{item.price}</strong>
+      <strong className="item-price">{item.price}</strong>
     </div>
   )
 }
