@@ -755,12 +755,18 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
   margin-bottom: 14px;
 }
 
 .remove-link,
 .add-button {
   cursor: pointer;
+}
+
+.compact-action {
+  min-height: 40px;
+  padding-inline: 14px;
 }
 
 .remove-link {
@@ -1202,6 +1208,10 @@
 
   .admin-button,
   .secondary-cta {
+    width: 100%;
+  }
+
+  .compact-action {
     width: 100%;
   }
 

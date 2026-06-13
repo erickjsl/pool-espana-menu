@@ -351,8 +351,17 @@ export function AdminPage({
                   <div className="editor-card-header">
                     <div>
                       <h3>{section.title}</h3>
-                      <p>{section.id}</p>
+                      <p>
+                        {section.id} · {section.items.length} {section.items.length === 1 ? 'item' : 'itens'}
+                      </p>
                     </div>
+                    <button
+                      type="button"
+                      className="admin-button compact-action"
+                      onClick={() => addSectionItem(sectionIndex)}
+                    >
+                      Agregar item
+                    </button>
                   </div>
 
                   <div className="form-grid two-columns">
@@ -440,7 +449,11 @@ export function AdminPage({
                     ))}
                   </div>
 
-                  <button type="button" className="admin-button add-button" onClick={() => addSectionItem(sectionIndex)}>
+                  <button
+                    type="button"
+                    className="admin-button add-button"
+                    onClick={() => addSectionItem(sectionIndex)}
+                  >
                     Agregar item a {section.title}
                   </button>
                 </div>
