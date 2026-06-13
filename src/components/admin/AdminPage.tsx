@@ -43,6 +43,7 @@ export function AdminPage({
   const [jsonMode, setJsonMode] = useState(false)
   const [editorValue, setEditorValue] = useState(() => JSON.stringify(content, null, 2))
   const [isSaving, setIsSaving] = useState(false)
+  const [lastDraftBeforeReset, setLastDraftBeforeReset] = useState<MenuContent | null>(null)
 
   const stats = useMemo(() => {
     const itemsCount = draft.menuSections.reduce((total, section) => total + section.items.length, 0)
@@ -172,6 +173,7 @@ export function AdminPage({
       onContentChange(savedContent)
       setDraft(cloneContent(savedContent))
       setEditorValue(JSON.stringify(savedContent, null, 2))
+      setLastDraftBeforeReset(null)
       setStatus('Cambios guardados para todos los dispositivos.')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'No se pudo guardar el contenido central.'
@@ -182,12 +184,33 @@ export function AdminPage({
   }
 
   function handleReset() {
+    const confirmed = window.confirm(
+      'Restaurar original vai trocar o rascunho atual pelo conteudo padrao. Voce podera desfazer logo em seguida. Continuar?',
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    setLastDraftBeforeReset(cloneContent(draft))
     const resetContent = cloneDefaultContent()
     clearStoredContent()
     setDraft(resetContent)
     onContentChange(resetContent)
     setEditorValue(JSON.stringify(resetContent, null, 2))
-    setStatus('Contenido restaurado localmente. Guarda para publicarlo a todos.')
+    setStatus('Contenido original cargado localmente. Si fue por error, usa Desfazer restauracion antes de guardar.')
+  }
+
+  function handleUndoReset() {
+    if (!lastDraftBeforeReset) {
+      return
+    }
+
+    setDraft(lastDraftBeforeReset)
+    onContentChange(lastDraftBeforeReset)
+    setEditorValue(JSON.stringify(lastDraftBeforeReset, null, 2))
+    setLastDraftBeforeReset(null)
+    setStatus('Rascunho anterior restaurado no painel.')
   }
 
   function handleDownload() {
@@ -210,6 +233,7 @@ export function AdminPage({
       const parsed = JSON.parse(text) as MenuContent
       setDraft(parsed)
       setEditorValue(JSON.stringify(parsed, null, 2))
+      setLastDraftBeforeReset(null)
       setStatus(`Archivo cargado: ${file.name}`)
     } catch {
       setStatus('No se pudo importar el archivo.')
@@ -222,6 +246,7 @@ export function AdminPage({
     try {
       const parsed = JSON.parse(editorValue) as MenuContent
       setDraft(parsed)
+      setLastDraftBeforeReset(null)
       setStatus('JSON aplicado al panel visual.')
     } catch {
       setStatus('JSON invalido. Revisa comas, llaves y comillas.')
@@ -296,6 +321,11 @@ export function AdminPage({
           <button type="button" className="admin-button danger" onClick={handleReset}>
             Restaurar original
           </button>
+          {lastDraftBeforeReset ? (
+            <button type="button" className="admin-button" onClick={handleUndoReset}>
+              Desfazer restauracion
+            </button>
+          ) : null}
         </div>
 
         <p className="admin-status">{status}</p>
