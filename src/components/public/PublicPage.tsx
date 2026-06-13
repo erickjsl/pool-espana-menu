@@ -98,7 +98,11 @@ export function PublicPage({ content, contentStatus }: { content: MenuContent; c
 
                 <div className="menu-items single-column">
                   {section.items.map((item) => (
-                    <ProductRow key={`${section.id}-${item.name}`} item={item} />
+                    <ProductRow
+                      key={`${section.id}-${item.name}`}
+                      item={item}
+                      imageTone={section.id === 'tragos' ? 'cocktail' : section.id === 'comidas' ? 'food' : 'bottle'}
+                    />
                   ))}
                 </div>
               </article>
@@ -118,7 +122,7 @@ export function PublicPage({ content, contentStatus }: { content: MenuContent; c
             <article className="menu-section">
               <div className="menu-items">
                 {tragosSection.items.map((item) => (
-                  <ProductRow key={`${tragosSection.id}-${item.name}`} item={item} />
+                  <ProductRow key={`${tragosSection.id}-${item.name}`} item={item} imageTone="cocktail" />
                 ))}
               </div>
             </article>
@@ -169,7 +173,7 @@ export function PublicPage({ content, contentStatus }: { content: MenuContent; c
             <article className="menu-section">
               <div className="menu-items">
                 {comidasSection.items.map((item) => (
-                  <ProductRow key={`${comidasSection.id}-${item.name}`} item={item} />
+                  <ProductRow key={`${comidasSection.id}-${item.name}`} item={item} imageTone="food" />
                 ))}
               </div>
             </article>

@@ -1,11 +1,16 @@
 import type { MenuItem } from '../../data/menu'
 import { AppImage } from '../shared/AppImage'
 
-export function ProductRow({ item }: { item: MenuItem }) {
+type ProductRowProps = {
+  item: MenuItem
+  imageTone?: 'bottle' | 'cocktail' | 'food'
+}
+
+export function ProductRow({ item, imageTone = 'bottle' }: ProductRowProps) {
   return (
     <div className="menu-item product-row">
       {item.image ? (
-        <div className="product-thumb">
+        <div className={`product-thumb ${imageTone}`}>
           <AppImage
             src={item.image}
             alt={item.name}
