@@ -1,4 +1,4 @@
-import { useMemo, useState, type ChangeEvent, type ReactNode } from 'react'
+import { useMemo, useState, type ChangeEvent, type DragEvent as ReactDragEvent, type ReactNode } from 'react'
 import { type MenuContent, type MenuItem, type MenuSection, type PromoCard } from '../../data/menu'
 import {
   clearStoredContent,
@@ -27,6 +27,11 @@ const emptyItem = (): MenuItem => ({
   image: '',
 })
 
+type DraggedItem = {
+  sectionIndex: number
+  itemIndex: number
+}
+
 export function AdminPage({
   content,
   onContentChange,
@@ -44,6 +49,9 @@ export function AdminPage({
   const [editorValue, setEditorValue] = useState(() => JSON.stringify(content, null, 2))
   const [isSaving, setIsSaving] = useState(false)
   const [lastDraftBeforeReset, setLastDraftBeforeReset] = useState<MenuContent | null>(null)
+  const [itemSearch, setItemSearch] = useState('')
+  const [sectionFilter, setSectionFilter] = useState('all')
+  const [draggedItem, setDraggedItem] = useState<DraggedItem | null>(null)
 
   const stats = useMemo(() => {
     const itemsCount = draft.menuSections.reduce((total, section) => total + section.items.length, 0)
@@ -59,6 +67,45 @@ export function AdminPage({
       { label: 'Imgs cargadas', value: itemsWithImages + draft.comboCards.filter((item) => item.image).length },
     ]
   }, [draft])
+
+  const normalizedItemSearch = normalizeText(itemSearch)
+
+  const filteredSections = useMemo(() => {
+    return draft.menuSections
+      .map((section, sectionIndex) => {
+        const sectionMatchesFilter = sectionFilter === 'all' || section.id === sectionFilter
+        const sectionMeta = normalizeText(`${section.id} ${section.eyebrow} ${section.title} ${section.description}`)
+        const sectionMatchesSearch = normalizedItemSearch.length === 0 || sectionMeta.includes(normalizedItemSearch)
+        const items = section.items
+          .map((item, itemIndex) => ({
+            item,
+            itemIndex,
+            matches:
+              sectionMatchesSearch ||
+              normalizedItemSearch.length === 0 ||
+              normalizeText(`${item.name} ${item.description ?? ''} ${item.price} ${item.badge ?? ''}`).includes(
+                normalizedItemSearch,
+              ),
+          }))
+          .filter(({ matches }) => matches)
+
+        const isVisible =
+          sectionMatchesFilter && (normalizedItemSearch.length === 0 || sectionMatchesSearch || items.length > 0)
+
+        return {
+          section,
+          sectionIndex,
+          items,
+          isVisible,
+        }
+      })
+      .filter((sectionEntry) => sectionEntry.isVisible)
+  }, [draft.menuSections, normalizedItemSearch, sectionFilter])
+
+  const visibleItemsCount = useMemo(
+    () => filteredSections.reduce((total, section) => total + section.items.length, 0),
+    [filteredSections],
+  )
 
   function updateDraft(updater: (current: MenuContent) => MenuContent) {
     setDraft((current) => {
@@ -105,6 +152,19 @@ export function AdminPage({
     })
   }
 
+  function duplicateSectionItem(sectionIndex: number, itemIndex: number) {
+    updateDraft((current) => {
+      const menuSections = [...current.menuSections]
+      const items = [...menuSections[sectionIndex].items]
+      const duplicatedItem = cloneContent(items[itemIndex])
+      items.splice(itemIndex + 1, 0, duplicatedItem)
+      menuSections[sectionIndex] = { ...menuSections[sectionIndex], items }
+      return { ...current, menuSections }
+    })
+
+    setStatus('Item duplicado. Ajusta nome, preco ou imagem se necessario.')
+  }
+
   function removeSectionItem(sectionIndex: number, itemIndex: number) {
     updateDraft((current) => {
       const menuSections = [...current.menuSections]
@@ -114,6 +174,51 @@ export function AdminPage({
       }
       return { ...current, menuSections }
     })
+  }
+
+  function moveSectionItem(sectionIndex: number, fromIndex: number, toIndex: number) {
+    if (fromIndex === toIndex) {
+      return
+    }
+
+    updateDraft((current) => {
+      const menuSections = [...current.menuSections]
+      const items = [...menuSections[sectionIndex].items]
+      const [movedItem] = items.splice(fromIndex, 1)
+      items.splice(toIndex, 0, movedItem)
+      menuSections[sectionIndex] = { ...menuSections[sectionIndex], items }
+      return { ...current, menuSections }
+    })
+  }
+
+  function handleItemDragStart(sectionIndex: number, itemIndex: number) {
+    setDraggedItem({ sectionIndex, itemIndex })
+    setStatus('Arrastrando item. Suelta sobre otro item de la misma categoria para reordenar.')
+  }
+
+  function handleItemDragOver(event: ReactDragEvent<HTMLDivElement>) {
+    event.preventDefault()
+    event.dataTransfer.dropEffect = 'move'
+  }
+
+  function handleItemDrop(sectionIndex: number, itemIndex: number) {
+    if (!draggedItem) {
+      return
+    }
+
+    if (draggedItem.sectionIndex !== sectionIndex) {
+      setDraggedItem(null)
+      setStatus('Por ahora el arrastre funciona dentro de la misma categoria.')
+      return
+    }
+
+    moveSectionItem(sectionIndex, draggedItem.itemIndex, itemIndex)
+    setDraggedItem(null)
+    setStatus('Orden del item actualizado en la categoria.')
+  }
+
+  function handleItemDragEnd() {
+    setDraggedItem(null)
   }
 
   function addCombo() {
@@ -138,7 +243,7 @@ export function AdminPage({
       setStatus(`Preparando imagen del combo: ${file.name}...`)
       const path = await uploadRemoteImage(file)
       updateCombo(index, 'image', path)
-      setStatus('Imagen del combo lista. Ahora toca Guardar para todos.')
+      setStatus('Imagen del combo optimizada y lista. Ahora toca Guardar para todos.')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'No se pudo subir la imagen del combo.'
       setStatus(message)
@@ -155,7 +260,7 @@ export function AdminPage({
       setStatus(`Preparando imagen del producto: ${file.name}...`)
       const path = await uploadRemoteImage(file)
       updateSectionItem(sectionIndex, itemIndex, 'image', path)
-      setStatus('Imagen del producto lista. Ahora toca Guardar para todos.')
+      setStatus('Imagen del producto optimizada y lista. Ahora toca Guardar para todos.')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'No se pudo subir la imagen del producto.'
       setStatus(message)
@@ -328,7 +433,9 @@ export function AdminPage({
           ) : null}
         </div>
 
-        <p className="admin-status">{status}</p>
+        <p className="admin-status" role="status" aria-live="polite">
+          {status}
+        </p>
 
         <div className="admin-sections">
           <AdminCard title="Datos principales" description="Nombre visible del sitio.">
@@ -374,9 +481,39 @@ export function AdminPage({
             </button>
           </AdminCard>
 
-          <AdminCard title="Categorias del menu" description="Cada producto puede tener foto, precio y descripcion.">
+          <AdminCard
+            title="Categorias del menu"
+            description="Busca, filtra, duplica y reordena items sin tocar el JSON."
+          >
+            <div className="admin-filter-bar">
+              <Field
+                id="admin-item-search"
+                label="Buscar item"
+                value={itemSearch}
+                onChange={setItemSearch}
+                placeholder="Ej.: corona, pizza, whisky..."
+              />
+
+              <label className="field">
+                <span>Filtrar categoria</span>
+                <select value={sectionFilter} onChange={(event) => setSectionFilter(event.target.value)}>
+                  <option value="all">Todas las categorias</option>
+                  {draft.menuSections.map((section) => (
+                    <option key={section.id} value={section.id}>
+                      {section.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <p className="admin-result-summary">
+              {filteredSections.length} {filteredSections.length === 1 ? 'categoria visible' : 'categorias visibles'} ·{' '}
+              {visibleItemsCount} {visibleItemsCount === 1 ? 'item encontrado' : 'items encontrados'}
+            </p>
+
             <div className="stack-list">
-              {draft.menuSections.map((section, sectionIndex) => (
+              {filteredSections.map(({ section, sectionIndex, items }) => (
                 <div className="editor-card" key={section.id}>
                   <div className="editor-card-header">
                     <div>
@@ -415,22 +552,76 @@ export function AdminPage({
                   />
 
                   <div className="stack-list">
-                    {section.items.map((item, itemIndex) => (
-                      <div className="sub-editor-card" key={`${section.id}-${itemIndex}`}>
+                    {items.map(({ item, itemIndex }) => (
+                      <div
+                        className={`sub-editor-card ${draggedItem?.sectionIndex === sectionIndex && draggedItem?.itemIndex === itemIndex ? 'dragging' : ''}`}
+                        key={`${section.id}-${itemIndex}`}
+                        draggable
+                        onDragStart={() => handleItemDragStart(sectionIndex, itemIndex)}
+                        onDragOver={handleItemDragOver}
+                        onDrop={() => handleItemDrop(sectionIndex, itemIndex)}
+                        onDragEnd={handleItemDragEnd}
+                      >
                         <div className="editor-card-header">
                           <strong>Item {itemIndex + 1}</strong>
-                          <button
-                            type="button"
-                            className="remove-link"
-                            onClick={() => removeSectionItem(sectionIndex, itemIndex)}
-                          >
-                            Eliminar
-                          </button>
+                          <div className="item-actions">
+                            <button
+                              type="button"
+                              className="subtle-action"
+                              onClick={() => moveSectionItem(sectionIndex, itemIndex, Math.max(0, itemIndex - 1))}
+                              disabled={itemIndex === 0}
+                              aria-label={`Mover ${item.name} para cima`}
+                            >
+                              Subir
+                            </button>
+                            <button
+                              type="button"
+                              className="subtle-action"
+                              onClick={() =>
+                                moveSectionItem(
+                                  sectionIndex,
+                                  itemIndex,
+                                  Math.min(section.items.length - 1, itemIndex + 1),
+                                )
+                              }
+                              disabled={itemIndex === section.items.length - 1}
+                              aria-label={`Mover ${item.name} para baixo`}
+                            >
+                              Bajar
+                            </button>
+                            <button
+                              type="button"
+                              className="subtle-action"
+                              onClick={() => duplicateSectionItem(sectionIndex, itemIndex)}
+                              aria-label={`Duplicar ${item.name}`}
+                            >
+                              Duplicar
+                            </button>
+                            <button
+                              type="button"
+                              className="subtle-action drag-handle"
+                              aria-label={`Arrastrar ${item.name}`}
+                            >
+                              Arrastrar
+                            </button>
+                            <button
+                              type="button"
+                              className="remove-link"
+                              onClick={() => removeSectionItem(sectionIndex, itemIndex)}
+                              aria-label={`Eliminar ${item.name}`}
+                            >
+                              Eliminar
+                            </button>
+                          </div>
                         </div>
 
                         <div className="item-admin-grid">
                           <div className="image-preview-frame small-preview">
-                            {item.image ? <img src={item.image} alt={item.name} /> : <span>Sin imagen</span>}
+                            {item.image ? (
+                              <img src={item.image} alt={item.name} loading="lazy" decoding="async" />
+                            ) : (
+                              <span>Sin imagen</span>
+                            )}
                           </div>
 
                           <div className="stack-list tight">
@@ -489,6 +680,12 @@ export function AdminPage({
                 </div>
               ))}
             </div>
+            {filteredSections.length === 0 ? (
+              <div className="empty-admin-state">
+                <strong>Sin resultados</strong>
+                <p>Ajusta la busca o cambia el filtro para volver a ver los items del menu.</p>
+              </div>
+            ) : null}
           </AdminCard>
 
           <details className="advanced-json">
@@ -542,7 +739,7 @@ function EditableComboCard({
 
       <div className="item-admin-grid">
         <div className="image-preview-frame small-preview">
-          {combo.image ? <img src={combo.image} alt={combo.title} /> : <span>Sin imagen</span>}
+          {combo.image ? <img src={combo.image} alt={combo.title} loading="lazy" decoding="async" /> : <span>Sin imagen</span>}
         </div>
 
         <div className="stack-list tight">
@@ -585,8 +782,8 @@ function ImageUploadField({
       <input type="file" accept="image/*" onChange={onChange} />
       <span className={hasPreparedImage ? 'upload-success' : undefined}>
         {hasPreparedImage
-          ? 'Imagen configurada. Si cambiaste la foto, guarda para todos.'
-          : 'La vista previa cambia al elegir el archivo.'}
+          ? 'Imagen configurada y optimizada. Si cambiaste la foto, guarda para todos.'
+          : 'La vista previa cambia al elegir el archivo y se optimiza antes de guardar.'}
       </span>
     </label>
   )
@@ -610,4 +807,12 @@ function AdminCard({
       {children}
     </article>
   )
+}
+
+function normalizeText(value: string) {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
 }

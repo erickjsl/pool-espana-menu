@@ -108,7 +108,7 @@ function compressImage(file: File) {
     image.onload = () => {
       URL.revokeObjectURL(url)
 
-      const maxSize = 420
+      const maxSize = 960
       const ratio = Math.min(1, maxSize / Math.max(image.width, image.height))
       const width = Math.max(1, Math.round(image.width * ratio))
       const height = Math.max(1, Math.round(image.height * ratio))
@@ -122,19 +122,35 @@ function compressImage(file: File) {
 
       canvas.width = width
       canvas.height = height
+      context.imageSmoothingEnabled = true
+      context.imageSmoothingQuality = 'high'
       context.drawImage(image, 0, 0, width, height)
+
+      const finalizeBlob = (blob: Blob | null, type: string, extension: string) => {
+        if (!blob) {
+          reject(new Error('No se pudo comprimir la imagen.'))
+          return
+        }
+
+        const name = file.name.replace(/\.[^.]+$/, '') || 'image'
+        resolve(new File([blob], `${name}.${extension}`, { type }))
+      }
+
       canvas.toBlob(
         (blob) => {
-          if (!blob) {
-            reject(new Error('No se pudo comprimir la imagen.'))
+          if (blob) {
+            finalizeBlob(blob, 'image/webp', 'webp')
             return
           }
 
-          const name = file.name.replace(/\.[^.]+$/, '') || 'image'
-          resolve(new File([blob], `${name}.jpg`, { type: 'image/jpeg' }))
+          canvas.toBlob(
+            (jpegBlob) => finalizeBlob(jpegBlob, 'image/jpeg', 'jpg'),
+            'image/jpeg',
+            0.76,
+          )
         },
-        'image/jpeg',
-        0.68,
+        'image/webp',
+        0.74,
       )
     }
 
